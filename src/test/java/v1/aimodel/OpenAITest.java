@@ -44,8 +44,6 @@ class OpenAITest {
                 .build());
 
         // Assert
-        ArgumentCaptor<HttpPost> httpPostArgumentCaptor = ArgumentCaptor.forClass(HttpPost.class);
-        ArgumentCaptor<HttpClientContext> httpClientContextArgumentCaptor = ArgumentCaptor.forClass(HttpClientContext.class);
         Assertions.assertTrue(chatCompletionResponse.getMetrics()
                 .getMetrics()
                 .stream()
@@ -62,7 +60,7 @@ class OpenAITest {
                 .anyMatch(metric -> metric.getName().equals("total_tokens") && metric.getUnit().equals(MetricUnit.COUNT) &&
                         metric.getValue().equals(21d) && metric.getComponent().equals(OpenAI.class.getName())));
         Assertions.assertTrue(chatCompletionResponse.getChatCompletionResponseChoices()
-                .getChoices()
+                .getChatCompletionResponseChoiceList()
                 .stream()
                 .anyMatch(choice -> choice.getFinishReason().equals("stop")
                         && choice.getMessage().getContent().equals("I am a robot. I was programmed to do tasks.")

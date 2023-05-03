@@ -14,12 +14,10 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import v1.model.*;
-import v1.model.agent.AgentModel;
 import v1.model.agent.metric.Metric;
 import v1.model.agent.metric.MetricName;
 import v1.model.agent.metric.MetricUnit;
 import v1.model.agent.metric.Metrics;
-import v1.prompt.PromptTemplateRenderer;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -39,6 +37,7 @@ public class OpenAI extends AIModel {
     private static final String ACCEPT_LANGUAGE = "Accept-Language";
     private static final String CHOICES = "choices";
     private static final String MESSAGE = "message";
+    private static final String TEXT = "text";
     private static final String ROLE = "role";
     private static final String CONTENT = "content";
     private static final String FINISH_REASON = "finish_reason";
@@ -53,39 +52,52 @@ public class OpenAI extends AIModel {
     private Boolean useChatAsCompletion;
 
     @Override
-    public CompletionResponse completion(CompletionRequest toolRequest) {
+    public CompletionResponse completion(CompletionRequest completionRequest) {
         if (this.useChatAsCompletion) {
 
         }
-        return null;
-    }
 
-    @Override
-    public ChatCompletionResponse chatCompletion(ChatCompletionRequest chatCompletionRequest) {
+        updateModelIfNotPresent(completionRequest);
         final HttpPost httpPost = new HttpPost(CHAT_COMPLETIONS);
-        httpPost.setHeader(CONTENT_TYPE, APP_JSON);
-        httpPost.setHeader(ACCEPT, APP_JSON);
-        httpPost.setHeader(AUTHORIZATION, BEARER_PREFIX + key);
-
-        if (chatCompletionRequest.getLanguage() != null) {
-            httpPost.setHeader(ACCEPT_LANGUAGE, chatCompletionRequest.getLanguage());
-        }
-
-        chatCompletionRequest = updateModelIfNotPresent(chatCompletionRequest);
-
-        final StringEntity stringEntity = new StringEntity(GSON.toJson(map(chatCompletionRequest)),  "UTF-8");
-        httpPost.setEntity(stringEntity);
-
+        setDefaultHeaders(httpPost, completionRequest.getLanguage(), GSON.toJson(map(completionRequest)));
 
         try (final CloseableHttpResponse response = closeableHttpClient.execute(httpPost, HttpClientContext.create())) {
             final String responseString = EntityUtils.toString(response.getEntity());
             final JsonObject jsonObject = GSON.fromJson(responseString, JsonObject.class);
-            return map(jsonObject);
+            return mapToCompletionResponse(jsonObject);
         } catch (ClientProtocolException e) {
             throw new Generative4jException(e);
         } catch (IOException e) {
             throw new Generative4jException(e);
         }
+    }
+
+    @Override
+    public ChatCompletionResponse chatCompletion(ChatCompletionRequest chatCompletionRequest) {
+        chatCompletionRequest = updateModelIfNotPresent(chatCompletionRequest);
+
+        final HttpPost httpPost = new HttpPost(CHAT_COMPLETIONS);
+        setDefaultHeaders(httpPost, chatCompletionRequest.getLanguage(), GSON.toJson(map(chatCompletionRequest)));
+
+        try (final CloseableHttpResponse response = closeableHttpClient.execute(httpPost, HttpClientContext.create())) {
+            final String responseString = EntityUtils.toString(response.getEntity());
+            final JsonObject jsonObject = GSON.fromJson(responseString, JsonObject.class);
+            return mapToChatCompletionResponse(jsonObject);
+        } catch (ClientProtocolException e) {
+            throw new Generative4jException(e);
+        } catch (IOException e) {
+            throw new Generative4jException(e);
+        }
+    }
+
+    private void setDefaultHeaders(final HttpPost httpPost, final String language, final String body) {
+        httpPost.setHeader(CONTENT_TYPE, APP_JSON);
+        httpPost.setHeader(ACCEPT, APP_JSON);
+        httpPost.setHeader(AUTHORIZATION, BEARER_PREFIX + key);
+        if (language != null) {
+            httpPost.setHeader(ACCEPT_LANGUAGE, language);
+        }
+        httpPost.setEntity(new StringEntity(body,  "UTF-8"));
     }
 
     private ChatCompletionRequest updateModelIfNotPresent(ChatCompletionRequest chatCompletionRequest) {
@@ -97,6 +109,15 @@ public class OpenAI extends AIModel {
         return chatCompletionRequest;
     }
 
+    private CompletionRequest updateModelIfNotPresent(CompletionRequest completionRequest) {
+        if (completionRequest.getModel() == null) {
+            return completionRequest.toBuilder()
+                    .model(this.defaultModel)
+                    .build();
+        }
+        return completionRequest;
+    }
+
     private ChatGPTRequest map(ChatCompletionRequest chatCompletionRequest) {
         return ChatGPTRequest.builder()
                 .model(chatCompletionRequest.getModel())
@@ -105,7 +126,15 @@ public class OpenAI extends AIModel {
                 .build();
     }
 
-    private ChatCompletionResponse map(final JsonObject response) {
+    private OpenAICompletionRequest map(CompletionRequest completionRequest) {
+        return OpenAICompletionRequest.builder()
+                .model(completionRequest.getModel())
+                .prompt(completionRequest.getPrompt())
+                .temperature(completionRequest.getTemperature())
+                .build();
+    }
+
+    private ChatCompletionResponse mapToChatCompletionResponse(final JsonObject response) {
         final LinkedList<ChatCompletionResponseChoice> choices = new LinkedList<>();
         Optional.ofNullable(response)
                 .map(jsonObject -> jsonObject.getAsJsonArray(CHOICES))
@@ -122,7 +151,43 @@ public class OpenAI extends AIModel {
                     choices.add(chatCompletionResponseChoice);
                 }));
 
+        return ChatCompletionResponse.builder()
+                .chatCompletionResponseChoices(ChatCompletionResponseChoices
+                        .builder()
+                        .chatCompletionResponseChoiceList(choices)
+                        .build())
+                .metrics(Metrics.builder()
+                        .metrics(mapMetrics(response))
+                        .build())
+                .build();
+    }
 
+    private CompletionResponse mapToCompletionResponse(final JsonObject response) {
+        final LinkedList<CompletionResponseChoice> choices = new LinkedList<>();
+        Optional.ofNullable(response)
+                .map(jsonObject -> jsonObject.getAsJsonArray(CHOICES))
+                .ifPresent(jsonArray -> jsonArray.forEach(jsonElement -> {
+                    CompletionResponseChoice completionResponseChoice =
+                            CompletionResponseChoice.builder()
+                                    .text(jsonElement.getAsJsonObject().get(TEXT).getAsString())
+                                    .finishReason(jsonElement.getAsJsonObject().get(FINISH_REASON).getAsString())
+                                    .build();
+
+                    choices.add(completionResponseChoice);
+                }));
+
+        return CompletionResponse.builder()
+                .completionResponseChoices(CompletionResponseChoices
+                        .builder()
+                        .completionResponseChoiceList(choices)
+                        .build())
+                .metrics(Metrics.builder()
+                        .metrics(mapMetrics(response))
+                        .build())
+                .build();
+    }
+
+    private LinkedList<Metric> mapMetrics(final JsonObject response) {
         final LinkedList<Metric> metrics = new LinkedList<>();
         Optional.ofNullable(response)
                 .map(jsonObject -> jsonObject.get(USAGE).getAsJsonObject())
@@ -160,16 +225,7 @@ public class OpenAI extends AIModel {
                             .build();
                     metrics.add(metric);
                 });
-
-        return ChatCompletionResponse.builder()
-                .chatCompletionResponseChoices(ChatCompletionResponseChoices
-                        .builder()
-                        .choices(choices)
-                        .build())
-                .metrics(Metrics.builder()
-                        .metrics(metrics)
-                        .build())
-                .build();
+        return metrics;
     }
 
     @Builder
@@ -178,5 +234,13 @@ public class OpenAI extends AIModel {
         String model;
         List<ChatCompletionMessage> messages;
         Double temperature;
+    }
+
+    @Builder
+    @Getter
+    public static class OpenAICompletionRequest {
+        String model;
+        Double temperature;
+        String prompt;
     }
 }

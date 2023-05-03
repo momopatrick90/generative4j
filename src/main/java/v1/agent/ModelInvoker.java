@@ -3,10 +3,18 @@ package v1.agent;
 import com.google.gson.Gson;
 import lombok.Builder;
 import v1.aimodel.AIModel;
-import v1.model.*;
-import v1.model.agent.AgentDefinition;
+import v1.model.ChatCompletionMessage;
+import v1.model.ChatCompletionRequest;
+import v1.model.ChatCompletionResponse;
+import v1.model.ChatCompletionResponseChoice;
+import v1.model.ChatCompletionRole;
+import v1.model.Generative4jException;
+import v1.model.PromptParameter;
+import v1.model.PromptTemplate;
 import v1.model.agent.AgentState;
+import v1.model.agent.Tool;
 import v1.prompt.PromptTemplateRenderer;
+import v1.transformer.AIModelOutputToTool;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,8 +50,15 @@ public class ModelInvoker {
                 aiModel.chatCompletion(chatCompletionRequest);
 
         final List<ChatCompletionResponseChoice> choices = chatCompletionResponse
-                .getChatCompletionResponseChoices().getChoices();
+                .getChatCompletionResponseChoices().getChatCompletionResponseChoiceList();
         return choices.get(choices.size()-1).getMessage().getContent();
+    }
+
+    // https://github.com/hwchase17/langchain/blob/master/langchain/agents/mrkl/base.py
+    public static void executeMRKL(final AIModel aiModel, final PromptTemplate promptTemplate,
+                                 final List<Tool> tools, final AIModelOutputToTool aiModelOutputToTool,
+                                 final String... kvPairs) {
+
     }
     /**
     public Object runAuto(final AgentRequest agentRequest,

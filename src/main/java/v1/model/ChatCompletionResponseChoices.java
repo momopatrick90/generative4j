@@ -8,5 +8,5 @@ import java.util.List;
 @Builder
 @Getter
 public class ChatCompletionResponseChoices {
-    List<ChatCompletionResponseChoice> choices;
+    List<ChatCompletionResponseChoice> chatCompletionResponseChoiceList;
 }
