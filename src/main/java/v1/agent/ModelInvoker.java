@@ -25,15 +25,15 @@ import java.util.Map;
 public class ModelInvoker {
     private static Gson GSON = new Gson();
 
-    public static String complete(final AIModel aiModel, final PromptTemplate promptTemplate, final String... keyValuePairs) {
+    public String complete(final AIModel aiModel, final PromptTemplate promptTemplate, final String... keyValuePairs) {
         return complete(aiModel, promptTemplate, arrayToMap(keyValuePairs));
     }
 
-    public static String complete(final AIModel aiModel, final PromptTemplate promptTemplate, final PromptParameter promptParameter) {
+    public String complete(final AIModel aiModel, final PromptTemplate promptTemplate, final PromptParameter promptParameter) {
         return complete(aiModel, promptTemplate, promptParameter.getPromptParameters());
     }
 
-    public static String complete(final AIModel aiModel, final PromptTemplate promptTemplate, final Map<String, Object> parameters) {
+    public String complete(final AIModel aiModel, final PromptTemplate promptTemplate, final Map<String, Object> parameters) {
         final String prompt = PromptTemplateRenderer.format(promptTemplate,
                 parameters);
         final ChatCompletionMessage chatCompletionMessage = ChatCompletionMessage

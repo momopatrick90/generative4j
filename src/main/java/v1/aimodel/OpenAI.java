@@ -57,8 +57,9 @@ public class OpenAI extends AIModel {
 
         }
 
-        updateModelIfNotPresent(completionRequest);
-        final HttpPost httpPost = new HttpPost(CHAT_COMPLETIONS);
+        completionRequest = updateModelIfNotPresent(completionRequest);
+        final HttpPost httpPost = new HttpPost(COMPLETIONS);
+
         setDefaultHeaders(httpPost, completionRequest.getLanguage(), GSON.toJson(map(completionRequest)));
 
         try (final CloseableHttpResponse response = closeableHttpClient.execute(httpPost, HttpClientContext.create())) {
@@ -118,8 +119,8 @@ public class OpenAI extends AIModel {
         return completionRequest;
     }
 
-    private ChatGPTRequest map(ChatCompletionRequest chatCompletionRequest) {
-        return ChatGPTRequest.builder()
+    private OpenAiChatCompletionRequest map(ChatCompletionRequest chatCompletionRequest) {
+        return OpenAiChatCompletionRequest.builder()
                 .model(chatCompletionRequest.getModel())
                 .messages(chatCompletionRequest.getMessages())
                 .temperature(chatCompletionRequest.getTemperature())
@@ -230,7 +231,7 @@ public class OpenAI extends AIModel {
 
     @Builder
     @Getter
-    public static class ChatGPTRequest {
+    public static class OpenAiChatCompletionRequest {
         String model;
         List<ChatCompletionMessage> messages;
         Double temperature;

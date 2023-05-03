@@ -13,23 +13,114 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import v1.model.ChatCompletionMessage;
-import v1.model.ChatCompletionRequest;
-import v1.model.ChatCompletionResponse;
+import v1.model.*;
 import v1.model.agent.metric.MetricUnit;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 
 @Slf4j
 class OpenAITest {
+    @Test
+    void completion() throws IOException {
+        // Arrange
+        final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createResponse());
+        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",false);
+
+        // Act
+        final CompletionResponse completionResponse = openAIClient.completion(CompletionRequest.builder()
+                .prompt("prompt")
+                .temperature(27d)
+                .language("en")
+                .model("model")
+                .build());
+
+        // Assert
+        Assertions.assertTrue(completionResponse.getMetrics()
+                .getMetrics()
+                .stream()
+                .anyMatch(metric -> metric.getName().equals("prompt_tokens") && metric.getUnit().equals(MetricUnit.COUNT) &&
+                        metric.getValue().equals(9d) && metric.getComponent().equals(OpenAI.class.getName())));
+        Assertions.assertTrue(completionResponse.getMetrics()
+                .getMetrics()
+                .stream()
+                .anyMatch(metric -> metric.getName().equals("completion_tokens") && metric.getUnit().equals(MetricUnit.COUNT) &&
+                        metric.getValue().equals(12d) && metric.getComponent().equals(OpenAI.class.getName())));
+        Assertions.assertTrue(completionResponse.getMetrics()
+                .getMetrics()
+                .stream()
+                .anyMatch(metric -> metric.getName().equals("total_tokens") && metric.getUnit().equals(MetricUnit.COUNT) &&
+                        metric.getValue().equals(21d) && metric.getComponent().equals(OpenAI.class.getName())));
+        Assertions.assertTrue(completionResponse.getCompletionResponseChoices()
+                .getCompletionResponseChoiceList()
+                .stream()
+                .anyMatch(choice -> choice.getFinishReason().equals("stop")
+                        && choice.getText().equals("textresponse")));
+    }
+
+    @Test
+    void completionParameters() throws IOException {
+        // Arrange
+        final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createResponse());
+        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",false);
+
+        // Act
+        final CompletionResponse completionResponse = openAIClient.completion(CompletionRequest.builder()
+                .prompt("prompt")
+                .temperature(27d)
+                .language("en")
+                .model("model")
+                .build());
+
+        // Assert
+        ArgumentCaptor<HttpPost> httpPostArgumentCaptor = ArgumentCaptor.forClass(HttpPost.class);
+        ArgumentCaptor<HttpClientContext> httpClientContextArgumentCaptor = ArgumentCaptor.forClass(HttpClientContext.class);
+        Mockito.verify(closeableHttpClient).execute(httpPostArgumentCaptor.capture(), httpClientContextArgumentCaptor.capture());
+
+        Assertions.assertEquals(httpPostArgumentCaptor.getValue()
+                .getHeaders("Accept-Language")[0].getValue(), "en");
+        Assertions.assertEquals(httpPostArgumentCaptor.getValue()
+                .getHeaders("Authorization")[0].getValue(), "Bearer key");
+        Assertions.assertEquals(httpPostArgumentCaptor.getValue()
+                .getHeaders("Accept")[0].getValue(), "application/json");
+        Assertions.assertEquals(httpPostArgumentCaptor.getValue()
+                .getHeaders("Content-type")[0].getValue(), "application/json");
+    }
+
+    @Test
+    void completionParametersDefaultModel() throws IOException {
+        // Arrange
+        final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createResponse());
+        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model-str",false);
+
+        // Act
+        final CompletionResponse completionResponse = openAIClient.completion(CompletionRequest.builder()
+                .prompt("prompt")
+                .temperature(27d)
+                .language("en")
+                .build());
+
+        // Assert
+        ArgumentCaptor<HttpPost> httpPostArgumentCaptor = ArgumentCaptor.forClass(HttpPost.class);
+        ArgumentCaptor<HttpClientContext> httpClientContextArgumentCaptor = ArgumentCaptor.forClass(HttpClientContext.class);
+        Mockito.verify(closeableHttpClient).execute(httpPostArgumentCaptor.capture(), httpClientContextArgumentCaptor.capture());
+        InputStream inputStream = httpPostArgumentCaptor.getValue().getEntity().getContent();
+
+        String result= new BufferedReader(new InputStreamReader(inputStream))
+                .lines().collect(Collectors.joining("\n"));
+        Assertions.assertTrue(result.contains("default-model-str"));
+    }
 
     @Test
     void chatCompletion() throws IOException {
         // Arrange
-        final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createResponse());
+        final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createChatResponse());
         final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",false);
 
         // Act
@@ -69,7 +160,7 @@ class OpenAITest {
 
     @Test
     void chatCompletionParameters() throws IOException {
-        final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createResponse());
+        final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createChatResponse());
         final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",false);
 
         // Act
@@ -88,7 +179,6 @@ class OpenAITest {
         ArgumentCaptor<HttpClientContext> httpClientContextArgumentCaptor = ArgumentCaptor.forClass(HttpClientContext.class);
         Mockito.verify(closeableHttpClient).execute(httpPostArgumentCaptor.capture(), httpClientContextArgumentCaptor.capture());
 
-
         Assertions.assertEquals(httpPostArgumentCaptor.getValue()
                 .getHeaders("Accept-Language")[0].getValue(), "en");
         Assertions.assertEquals(httpPostArgumentCaptor.getValue()
@@ -101,7 +191,7 @@ class OpenAITest {
 
     @Test
     void chatCompletionParametersDefaultModel() throws IOException {
-        final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createResponse());
+        final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createChatResponse());
         final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model-str",false);
 
         // Act
@@ -143,8 +233,25 @@ class OpenAITest {
         return closeableHttpClient;
     }
 
-
     private JsonObject createResponse() {
+        return new Gson().fromJson(" {\n" +
+                "  \"id\": \"chatcmpl-123\",\n" +
+                "  \"object\": \"chat.completion\",\n" +
+                "  \"created\": 1677652288,\n" +
+                "  \"choices\": [{\n" +
+                "    \"text\": \"textresponse\",\n" +
+                "    \"finish_reason\": \"stop\"\n" +
+                "  }"  +
+                "],\n" +
+                "  \"usage\": {\n" +
+                "    \"prompt_tokens\": 9,\n" +
+                "    \"completion_tokens\": 12,\n" +
+                "    \"total_tokens\": 21\n" +
+                "  }\n" +
+                "} ", JsonObject.class);
+    }
+
+    private JsonObject createChatResponse() {
         return new Gson().fromJson(" {\n" +
                 "  \"id\": \"chatcmpl-123\",\n" +
                 "  \"object\": \"chat.completion\",\n" +
