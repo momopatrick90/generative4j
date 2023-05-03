@@ -183,8 +183,8 @@ public class ModelInvoker {
     }
 
     // TODO utils
-    public static Map<String, Object> arrayToMap(String[] parameters) {
-        if (parameters.length % 2 == 0) {
+    private static Map<String, Object> arrayToMap(String[] parameters) {
+        if (parameters.length % 2 != 0) {
             throw new Generative4jException("parameters should be event");
         }
         final Map<String, Object> evenMap = new HashMap<>();

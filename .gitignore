@@ -1,7 +1,4 @@
-afriportal.zip
 *.idea
 *.zip
 *.class
-target/
-afriportalvenv/
-src/python/env/*
+
