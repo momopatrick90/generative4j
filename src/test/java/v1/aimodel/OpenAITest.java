@@ -118,6 +118,55 @@ class OpenAITest {
     }
 
     @Test
+    void completionUseChatAsCompletion() throws IOException {
+        // Arrange
+        final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createChatResponse());
+        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",true);
+
+        // Act
+        final CompletionResponse completionResponse = openAIClient.completion(CompletionRequest.builder()
+                .prompt("prompt")
+                .temperature(27d)
+                .language("en")
+                .model("model")
+                .build());
+
+        // Assert
+        ArgumentCaptor<HttpPost> httpPostArgumentCaptor = ArgumentCaptor.forClass(HttpPost.class);
+        ArgumentCaptor<HttpClientContext> httpClientContextArgumentCaptor = ArgumentCaptor.forClass(HttpClientContext.class);
+        Mockito.verify(closeableHttpClient).execute(httpPostArgumentCaptor.capture(), httpClientContextArgumentCaptor.capture());
+
+        Assertions.assertTrue(completionResponse.getMetrics()
+                .getMetrics()
+                .stream()
+                .anyMatch(metric -> metric.getName().equals("prompt_tokens") && metric.getUnit().equals(MetricUnit.COUNT) &&
+                        metric.getValue().equals(9d) && metric.getComponent().equals(OpenAI.class.getName())));
+        Assertions.assertTrue(completionResponse.getMetrics()
+                .getMetrics()
+                .stream()
+                .anyMatch(metric -> metric.getName().equals("completion_tokens") && metric.getUnit().equals(MetricUnit.COUNT) &&
+                        metric.getValue().equals(12d) && metric.getComponent().equals(OpenAI.class.getName())));
+        Assertions.assertTrue(completionResponse.getMetrics()
+                .getMetrics()
+                .stream()
+                .anyMatch(metric -> metric.getName().equals("total_tokens") && metric.getUnit().equals(MetricUnit.COUNT) &&
+                        metric.getValue().equals(21d) && metric.getComponent().equals(OpenAI.class.getName())));
+        Assertions.assertTrue(completionResponse.getCompletionResponseChoices()
+                .getCompletionResponseChoiceList()
+                .stream()
+                .anyMatch(choice -> choice.getFinishReason().equals("stop")
+                        && choice.getText().equals("I am a robot. I was programmed to do tasks.")));
+        Assertions.assertEquals(httpPostArgumentCaptor.getValue()
+                .getHeaders("Accept-Language")[0].getValue(), "en");
+        Assertions.assertEquals(httpPostArgumentCaptor.getValue()
+                .getHeaders("Authorization")[0].getValue(), "Bearer key");
+        Assertions.assertEquals(httpPostArgumentCaptor.getValue()
+                .getHeaders("Accept")[0].getValue(), "application/json");
+        Assertions.assertEquals(httpPostArgumentCaptor.getValue()
+                .getHeaders("Content-type")[0].getValue(), "application/json");
+    }
+
+    @Test
     void chatCompletion() throws IOException {
         // Arrange
         final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createChatResponse());

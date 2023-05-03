@@ -20,6 +20,7 @@ import v1.model.agent.metric.MetricUnit;
 import v1.model.agent.metric.Metrics;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -54,7 +55,8 @@ public class OpenAI extends AIModel {
     @Override
     public CompletionResponse completion(CompletionRequest completionRequest) {
         if (this.useChatAsCompletion) {
-
+            return this.mapChatCompletionResponseToCompletionResponse(this.chatCompletion(this
+                    .mapCompletionRequestToChatCompletionRequest(completionRequest)));
         }
 
         completionRequest = updateModelIfNotPresent(completionRequest);
@@ -227,6 +229,34 @@ public class OpenAI extends AIModel {
                     metrics.add(metric);
                 });
         return metrics;
+    }
+
+    private ChatCompletionRequest mapCompletionRequestToChatCompletionRequest(CompletionRequest completionRequest) {
+        return ChatCompletionRequest.builder()
+                .language(completionRequest.getLanguage())
+                .model(completionRequest.getModel())
+                .temperature(completionRequest.getTemperature())
+                .messages(Arrays.asList(ChatCompletionMessage.builder()
+                        .role(ChatCompletionRole.USER)
+                        .content(completionRequest.getPrompt())
+                        .build()))
+                .build();
+    }
+
+    private CompletionResponse mapChatCompletionResponseToCompletionResponse(ChatCompletionResponse chatCompletionResponse) {
+        List<ChatCompletionResponseChoice> chatCompletionResponseChoices =
+                chatCompletionResponse.getChatCompletionResponseChoices().getChatCompletionResponseChoiceList();
+        ChatCompletionResponseChoice lastChoice = chatCompletionResponseChoices.get(chatCompletionResponseChoices.size()-1);
+
+        return CompletionResponse.builder()
+                .completionResponseChoices(CompletionResponseChoices.builder()
+                        .completionResponseChoiceList(Arrays.asList(CompletionResponseChoice.builder()
+                                        .text(lastChoice.getMessage().getContent())
+                                        .finishReason(lastChoice.getFinishReason())
+                                .build()))
+                        .build())
+                .metrics(chatCompletionResponse.getMetrics())
+                .build();
     }
 
     @Builder
