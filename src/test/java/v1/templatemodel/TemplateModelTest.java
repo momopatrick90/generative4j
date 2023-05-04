@@ -5,13 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import v1.aimodel.AIModel;
-import v1.model.ChatCompletionMessage;
-import v1.model.ChatCompletionRequest;
-import v1.model.ChatCompletionResponse;
-import v1.model.ChatCompletionResponseChoice;
-import v1.model.ChatCompletionResponseChoices;
-import v1.model.PromptParameter;
-import v1.model.PromptTemplate;
+import v1.model.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,36 +14,36 @@ import java.util.HashMap;
 class TemplateModelTest {
 
     @Test
-    void complete() {
+    void completion() {
         //Arrange
         final PromptTemplate promptTemplate = new PromptTemplate("a prompt containing {parameter}");
         final HashMap<String, Object> map = new HashMap<>();
         map.put("parameter", "paramValue");
-        final ChatCompletionResponseChoice mockChoice = ChatCompletionResponseChoice.builder()
-                .message(ChatCompletionMessage.builder().content("test message").build())
+        final CompletionResponseChoice mockChoice = CompletionResponseChoice.builder()
+                .text("test message")
                 .build();
-        final ChatCompletionResponse mockResponse = ChatCompletionResponse.builder()
-                .chatCompletionResponseChoices(ChatCompletionResponseChoices.builder()
-                        .chatCompletionResponseChoiceList(Arrays.asList(mockChoice))
+        final CompletionResponse mockResponse = CompletionResponse.builder()
+                .completionResponseChoices(CompletionResponseChoices.builder()
+                        .completionResponseChoiceList(Arrays.asList(mockChoice))
                         .build())
                 .build();
         final AIModel aiModel = Mockito.mock(AIModel.class);
-        Mockito.when(aiModel.chatCompletion(Mockito.any())).thenReturn(mockResponse);
+        Mockito.when(aiModel.completion(Mockito.any())).thenReturn(mockResponse);
         final TemplateModel templateModel = new TemplateModel(aiModel, promptTemplate);
 
         // Act
-        final String result = templateModel.complete(map);
+        final String result = templateModel.completion(map);
 
         // Assert
-        final ArgumentCaptor<ChatCompletionRequest> argumentCaptor = ArgumentCaptor.forClass(ChatCompletionRequest.class);
-        Mockito.verify(aiModel).chatCompletion(argumentCaptor.capture());
+        final ArgumentCaptor<CompletionRequest> argumentCaptor = ArgumentCaptor.forClass(CompletionRequest.class);
+        Mockito.verify(aiModel).completion(argumentCaptor.capture());
         Assertions.assertEquals(result,"test message");
-        Assertions.assertEquals(argumentCaptor.getValue().getMessages().get(0).getContent(),
+        Assertions.assertEquals(argumentCaptor.getValue().getPrompt(),
                 "a prompt containing paramValue");
     }
 
     @Test
-    void completePromptParameter() {
+    void completionPromptParameter() {
         //Arrange
         final PromptTemplate promptTemplate = new PromptTemplate("a prompt containing {parameter}");
         final HashMap<String, Object> map = new HashMap<>();
@@ -57,55 +51,55 @@ class TemplateModelTest {
         final PromptParameter promptParameter = PromptParameter.builder()
                 .promptParameters(map)
                 .build();
-        final ChatCompletionResponseChoice mockChoice = ChatCompletionResponseChoice.builder()
-                .message(ChatCompletionMessage.builder().content("test message").build())
+        final CompletionResponseChoice mockChoice = CompletionResponseChoice.builder()
+                .text("test message")
                 .build();
-        final ChatCompletionResponse mockResponse = ChatCompletionResponse.builder()
-                .chatCompletionResponseChoices(ChatCompletionResponseChoices.builder()
-                        .chatCompletionResponseChoiceList(Arrays.asList(mockChoice))
+        final CompletionResponse mockResponse = CompletionResponse.builder()
+                .completionResponseChoices(CompletionResponseChoices.builder()
+                        .completionResponseChoiceList(Arrays.asList(mockChoice))
                         .build())
                 .build();
         final AIModel aiModel = Mockito.mock(AIModel.class);
-        Mockito.when(aiModel.chatCompletion(Mockito.any())).thenReturn(mockResponse);
+        Mockito.when(aiModel.completion(Mockito.any())).thenReturn(mockResponse);
         final TemplateModel templateModel = new TemplateModel(aiModel, promptTemplate);
 
 
         // Act
-        final String result = templateModel.complete(promptParameter);
+        final String result = templateModel.completion(promptParameter);
 
         // Assert
-        final ArgumentCaptor<ChatCompletionRequest> argumentCaptor = ArgumentCaptor.forClass(ChatCompletionRequest.class);
-        Mockito.verify(aiModel).chatCompletion(argumentCaptor.capture());
+        final ArgumentCaptor<CompletionRequest> argumentCaptor = ArgumentCaptor.forClass(CompletionRequest.class);
+        Mockito.verify(aiModel).completion(argumentCaptor.capture());
         Assertions.assertEquals(result,"test message");
-        Assertions.assertEquals(argumentCaptor.getValue().getMessages().get(0).getContent(),
+        Assertions.assertEquals(argumentCaptor.getValue().getPrompt(),
                 "a prompt containing paramValue");
     }
 
     @Test
-    void completeKeyValues() {
+    void completionKeyValues() {
         //Arrange
         final PromptTemplate promptTemplate = new PromptTemplate("a prompt containing {parameter}");
-        final ChatCompletionResponseChoice mockChoice = ChatCompletionResponseChoice.builder()
-                .message(ChatCompletionMessage.builder().content("test message").build())
+        final CompletionResponseChoice mockChoice = CompletionResponseChoice.builder()
+                .text("test message")
                 .build();
-        final ChatCompletionResponse mockResponse = ChatCompletionResponse.builder()
-                .chatCompletionResponseChoices(ChatCompletionResponseChoices.builder()
-                        .chatCompletionResponseChoiceList(Arrays.asList(mockChoice))
+        final CompletionResponse mockResponse = CompletionResponse.builder()
+                .completionResponseChoices(CompletionResponseChoices.builder()
+                        .completionResponseChoiceList(Arrays.asList(mockChoice))
                         .build())
                 .build();
         final AIModel aiModel = Mockito.mock(AIModel.class);
-        Mockito.when(aiModel.chatCompletion(Mockito.any())).thenReturn(mockResponse);
+        Mockito.when(aiModel.completion(Mockito.any())).thenReturn(mockResponse);
         final TemplateModel templateModel = new TemplateModel(aiModel, promptTemplate);
 
 
         // Act
-        final String result = templateModel.complete( "parameter", "paramValue");
+        final String result = templateModel.completion( "parameter", "paramValue");
 
         // Assert
-        final ArgumentCaptor<ChatCompletionRequest> argumentCaptor = ArgumentCaptor.forClass(ChatCompletionRequest.class);
-        Mockito.verify(aiModel).chatCompletion(argumentCaptor.capture());
+        final ArgumentCaptor<CompletionRequest> argumentCaptor = ArgumentCaptor.forClass(CompletionRequest.class);
+        Mockito.verify(aiModel).completion(argumentCaptor.capture());
         Assertions.assertEquals(result,"test message");
-        Assertions.assertEquals(argumentCaptor.getValue().getMessages().get(0).getContent(),
+        Assertions.assertEquals(argumentCaptor.getValue().getPrompt(),
                 "a prompt containing paramValue");
     }
 }

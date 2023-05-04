@@ -4,13 +4,7 @@ import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import v1.aimodel.AIModel;
-import v1.model.ChatCompletionMessage;
-import v1.model.ChatCompletionRequest;
-import v1.model.ChatCompletionResponse;
-import v1.model.ChatCompletionResponseChoice;
-import v1.model.ChatCompletionRole;
-import v1.model.PromptParameter;
-import v1.model.PromptTemplate;
+import v1.model.*;
 import v1.model.agent.AgentState;
 import v1.model.agent.Tool;
 import v1.prompt.PromptTemplateRenderer;
@@ -28,33 +22,28 @@ public class TemplateModel {
     final AIModel aiModel;
     final PromptTemplate promptTemplate;
 
-    public  String complete(final String... keyValuePairs) {
-        return complete(ListUtils.keyValuesToMapObject(keyValuePairs));
+    public String completion(final String... keyValuePairs) {
+        return completion(ListUtils.keyValuesToMapObject(keyValuePairs));
     }
 
-    public String complete(final PromptParameter promptParameter) {
-        return complete(promptParameter.getPromptParameters());
+    public String completion(final PromptParameter promptParameter) {
+        return completion(promptParameter.getPromptParameters());
     }
 
-    public String complete(final Map<String, Object> parameters) {
+    public String completion(final Map<String, Object> parameters) {
         final String prompt = PromptTemplateRenderer.format(promptTemplate,
                 parameters);
-        final ChatCompletionMessage chatCompletionMessage = ChatCompletionMessage
-                .builder()
-                .role(ChatCompletionRole.USER)
-                .content(prompt)
+
+        final CompletionRequest completionRequest = CompletionRequest.builder()
+                .prompt(prompt)
                 .build();
 
-        final ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
-                .messages(Arrays.asList(chatCompletionMessage))
-                .build();
+        final CompletionResponse completionResponse =
+                aiModel.completion(completionRequest);
 
-        final ChatCompletionResponse chatCompletionResponse =
-                aiModel.chatCompletion(chatCompletionRequest);
-
-        final List<ChatCompletionResponseChoice> choices = chatCompletionResponse
-                .getChatCompletionResponseChoices().getChatCompletionResponseChoiceList();
-        return choices.get(choices.size()-1).getMessage().getContent();
+        final List<CompletionResponseChoice> choices = completionResponse
+                .getCompletionResponseChoices().getCompletionResponseChoiceList();
+        return choices.get(choices.size()-1).getText();
     }
 
     // https://github.com/hwchase17/langchain/blob/master/langchain/agents/mrkl/base.py
