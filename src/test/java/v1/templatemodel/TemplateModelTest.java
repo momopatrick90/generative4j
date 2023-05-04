@@ -1,4 +1,4 @@
-package v1.agent;
+package v1.templatemodel;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,12 +17,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 
-class ModelInvokerTest {
+class TemplateModelTest {
 
     @Test
     void complete() {
         //Arrange
-        final ModelInvoker modelInvoker = new ModelInvoker();
         final PromptTemplate promptTemplate = new PromptTemplate("a prompt containing {parameter}");
         final HashMap<String, Object> map = new HashMap<>();
         map.put("parameter", "paramValue");
@@ -36,9 +35,10 @@ class ModelInvokerTest {
                 .build();
         final AIModel aiModel = Mockito.mock(AIModel.class);
         Mockito.when(aiModel.chatCompletion(Mockito.any())).thenReturn(mockResponse);
+        final TemplateModel templateModel = new TemplateModel(aiModel, promptTemplate);
 
         // Act
-        final String result = modelInvoker.complete(aiModel, promptTemplate, map);
+        final String result = templateModel.complete(map);
 
         // Assert
         final ArgumentCaptor<ChatCompletionRequest> argumentCaptor = ArgumentCaptor.forClass(ChatCompletionRequest.class);
@@ -51,7 +51,6 @@ class ModelInvokerTest {
     @Test
     void completePromptParameter() {
         //Arrange
-        final ModelInvoker modelInvoker = new ModelInvoker();
         final PromptTemplate promptTemplate = new PromptTemplate("a prompt containing {parameter}");
         final HashMap<String, Object> map = new HashMap<>();
         map.put("parameter", "paramValue");
@@ -68,9 +67,11 @@ class ModelInvokerTest {
                 .build();
         final AIModel aiModel = Mockito.mock(AIModel.class);
         Mockito.when(aiModel.chatCompletion(Mockito.any())).thenReturn(mockResponse);
+        final TemplateModel templateModel = new TemplateModel(aiModel, promptTemplate);
+
 
         // Act
-        final String result = modelInvoker.complete(aiModel, promptTemplate, promptParameter);
+        final String result = templateModel.complete(promptParameter);
 
         // Assert
         final ArgumentCaptor<ChatCompletionRequest> argumentCaptor = ArgumentCaptor.forClass(ChatCompletionRequest.class);
@@ -83,7 +84,6 @@ class ModelInvokerTest {
     @Test
     void completeKeyValues() {
         //Arrange
-        final ModelInvoker modelInvoker = new ModelInvoker();
         final PromptTemplate promptTemplate = new PromptTemplate("a prompt containing {parameter}");
         final ChatCompletionResponseChoice mockChoice = ChatCompletionResponseChoice.builder()
                 .message(ChatCompletionMessage.builder().content("test message").build())
@@ -95,9 +95,11 @@ class ModelInvokerTest {
                 .build();
         final AIModel aiModel = Mockito.mock(AIModel.class);
         Mockito.when(aiModel.chatCompletion(Mockito.any())).thenReturn(mockResponse);
+        final TemplateModel templateModel = new TemplateModel(aiModel, promptTemplate);
+
 
         // Act
-        final String result = modelInvoker.complete(aiModel, promptTemplate, "parameter", "paramValue");
+        final String result = templateModel.complete( "parameter", "paramValue");
 
         // Assert
         final ArgumentCaptor<ChatCompletionRequest> argumentCaptor = ArgumentCaptor.forClass(ChatCompletionRequest.class);

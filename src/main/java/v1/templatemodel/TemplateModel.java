@@ -1,6 +1,7 @@
-package v1.agent;
+package v1.templatemodel;
 
 import com.google.gson.Gson;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import v1.aimodel.AIModel;
 import v1.model.ChatCompletionMessage;
@@ -8,7 +9,6 @@ import v1.model.ChatCompletionRequest;
 import v1.model.ChatCompletionResponse;
 import v1.model.ChatCompletionResponseChoice;
 import v1.model.ChatCompletionRole;
-import v1.model.Generative4jException;
 import v1.model.PromptParameter;
 import v1.model.PromptTemplate;
 import v1.model.agent.AgentState;
@@ -18,23 +18,25 @@ import v1.transformer.AIModelOutputToTool;
 import v1.utils.ListUtils;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Builder
-public class ModelInvoker {
+@AllArgsConstructor
+public class TemplateModel {
     private static Gson GSON = new Gson();
+    final AIModel aiModel;
+    final PromptTemplate promptTemplate;
 
-    public String complete(final AIModel aiModel, final PromptTemplate promptTemplate, final String... keyValuePairs) {
-        return complete(aiModel, promptTemplate, ListUtils.keyValuesToMapObject(keyValuePairs));
+    public  String complete(final String... keyValuePairs) {
+        return complete(ListUtils.keyValuesToMapObject(keyValuePairs));
     }
 
-    public String complete(final AIModel aiModel, final PromptTemplate promptTemplate, final PromptParameter promptParameter) {
-        return complete(aiModel, promptTemplate, promptParameter.getPromptParameters());
+    public String complete(final PromptParameter promptParameter) {
+        return complete(promptParameter.getPromptParameters());
     }
 
-    public String complete(final AIModel aiModel, final PromptTemplate promptTemplate, final Map<String, Object> parameters) {
+    public String complete(final Map<String, Object> parameters) {
         final String prompt = PromptTemplateRenderer.format(promptTemplate,
                 parameters);
         final ChatCompletionMessage chatCompletionMessage = ChatCompletionMessage
