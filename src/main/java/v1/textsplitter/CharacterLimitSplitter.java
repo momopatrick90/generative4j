@@ -12,10 +12,10 @@ import java.util.regex.Pattern;
 @AllArgsConstructor
 public class CharacterLimitSplitter implements TextSplitter{
     int chunkLimit;
-
+    // TODO split window size, make sure split takes into account largest window
 
     @Override
-    public List<String> split(String text, String regex) {
+    public List<String> split(String text, String splitRegex) {
         if (chunkLimit >= text.length()) {
             return Arrays.asList(text);
         }
@@ -29,7 +29,7 @@ public class CharacterLimitSplitter implements TextSplitter{
         int lastSplitIndex = -1;
         int lastStart = 0;
         for(int i = 0; i < text.length(); i++) {
-            if (Pattern.matches(regex, text.substring(i, i+1))) {
+            if (Pattern.matches(splitRegex, text.substring(i, i+1))) {
                 lastSplitIndex = i;
             }
 

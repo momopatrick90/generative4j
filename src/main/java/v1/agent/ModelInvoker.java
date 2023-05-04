@@ -15,6 +15,7 @@ import v1.model.agent.AgentState;
 import v1.model.agent.Tool;
 import v1.prompt.PromptTemplateRenderer;
 import v1.transformer.AIModelOutputToTool;
+import v1.utils.ListUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public class ModelInvoker {
     private static Gson GSON = new Gson();
 
     public String complete(final AIModel aiModel, final PromptTemplate promptTemplate, final String... keyValuePairs) {
-        return complete(aiModel, promptTemplate, arrayToMap(keyValuePairs));
+        return complete(aiModel, promptTemplate, ListUtils.keyValuesToMapObject(keyValuePairs));
     }
 
     public String complete(final AIModel aiModel, final PromptTemplate promptTemplate, final PromptParameter promptParameter) {
@@ -180,17 +181,5 @@ public class ModelInvoker {
         if (parameter!= null) {
             agentState.getParameters().put(parameter, value);
         }
-    }
-
-    // TODO utils
-    private static Map<String, Object> arrayToMap(String[] parameters) {
-        if (parameters.length % 2 != 0) {
-            throw new Generative4jException("parameters should be event");
-        }
-        final Map<String, Object> evenMap = new HashMap<>();
-        for (int i = 0; i < parameters.length; i += 2) {
-            evenMap.put(parameters[i], parameters[i + 1]);
-        }
-        return evenMap;
     }
 }
