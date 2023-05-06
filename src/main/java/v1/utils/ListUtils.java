@@ -18,11 +18,4 @@ public class ListUtils {
         }
         return evenMap;
     }
-
-    public static <T> Map<T, Object> keyValuesToMapObject(T... keyValues) {
-        final Map<T, T> evenMap = keyValuesToMap(keyValues);
-        return evenMap.entrySet()
-                .stream()
-                .collect(Collectors.toMap(kv -> kv.getKey(), kv -> kv.getValue()));
-    }
 }

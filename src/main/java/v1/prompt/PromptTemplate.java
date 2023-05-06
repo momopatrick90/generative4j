@@ -1,8 +1,8 @@
 package v1.prompt;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import v1.model.Generative4jException;
-import v1.model.PromptTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,9 +13,11 @@ import java.util.Map;
  * key-value pairs and returns the formatted prompt string.
  */
 @Builder
-public class PromptTemplateRenderer {
+@AllArgsConstructor
+public class PromptTemplate {
     private static final String OPENING_BRACES = "{";
     private static final String CLOSING_BRACES = "}";
+    private String text;
 
     /**
      * Call the method with some key-value pairs.
@@ -24,13 +26,13 @@ public class PromptTemplateRenderer {
      * @return the formatted prompt string.
      * @throws Generative4jException if the number of key-value pairs is not even.
      */
-    public static String format(final PromptTemplate promptTemplate, final String... keyValuePairs) {
+    public String format(final String... keyValuePairs) {
         if (keyValuePairs.length % 2 != 0) {
             new RuntimeException("Prompt parameter invalid, each key must have a value ");
             throw new Generative4jException("Prompt parameter invalid, each key must have a value ");
         }
 
-        final HashMap<String, Object> hashMap = new HashMap<>();
+        final HashMap<String, String> hashMap = new HashMap<>();
 
         for (int i = 0; i < keyValuePairs.length; i += 2) {
             final String key = keyValuePairs[i];
@@ -38,11 +40,11 @@ public class PromptTemplateRenderer {
             hashMap.put(key, value);
         }
 
-        return format(promptTemplate, hashMap);
+        return format(hashMap);
     }
 
-    public static String format(final PromptTemplate promptTemplate, final Map<String, Object> kevValues) {
-        String result = promptTemplate.getText();
+    public String format(final Map<String, String> kevValues) {
+        String result = text;
 
         for(String key : kevValues.keySet()) {
             CharSequence charSequence = OPENING_BRACES + key + CLOSING_BRACES;

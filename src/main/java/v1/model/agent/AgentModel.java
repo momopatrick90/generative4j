@@ -2,7 +2,7 @@ package v1.model.agent;
 
 import lombok.Builder;
 import lombok.Getter;
-import v1.model.PromptTemplate;
+import v1.prompt.PromptTemplate;
 
 @Getter
 @Builder

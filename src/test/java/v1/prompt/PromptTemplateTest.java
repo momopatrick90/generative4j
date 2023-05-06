@@ -3,11 +3,10 @@ package v1.prompt;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import v1.model.Generative4jException;
-import v1.model.PromptTemplate;
 
 import java.util.HashMap;
 
-class PromptTemplateRendererTest {
+class PromptTemplateTest {
     @Test
     public void testFormatWithOneKeyValuePair() {
         // Arrange
@@ -15,7 +14,7 @@ class PromptTemplateRendererTest {
         final String expected = "Hello Alice!";
 
         // Act
-        String actual = PromptTemplateRenderer.format(prompt, "name", "Alice");
+        String actual = prompt.format("name", "Alice");
 
         // Assert
         Assertions.assertEquals(expected, actual);
@@ -28,7 +27,7 @@ class PromptTemplateRendererTest {
         String expected = "Welcome to New York, Alice!";
 
         // Act
-        String actual = PromptTemplateRenderer.format(prompt,"city", "New York", "name", "Alice");
+        String actual = prompt.format("city", "New York", "name", "Alice");
 
         // Assert
         Assertions.assertEquals(expected, actual);
@@ -40,7 +39,7 @@ class PromptTemplateRendererTest {
         final PromptTemplate prompt = new PromptTemplate("Welcome to {key}");
 
         // Act Assert
-        Assertions.assertThrows(Generative4jException.class, () -> PromptTemplateRenderer.format(prompt,"key"));
+        Assertions.assertThrows(Generative4jException.class, () -> prompt.format("key"));
     }
 
     @Test
@@ -50,9 +49,9 @@ class PromptTemplateRendererTest {
         final String expected = "Hello Alice Alice!";
 
         // Act
-        final HashMap<String, Object> map = new HashMap<>();
+        final HashMap<String, String> map = new HashMap<>();
         map.put("name", "Alice");
-        String actual = PromptTemplateRenderer.format(prompt, map);
+        String actual = prompt.format(map);
 
         // Assert
         Assertions.assertEquals(expected, actual);

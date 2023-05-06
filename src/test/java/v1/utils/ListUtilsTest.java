@@ -25,12 +25,4 @@ class ListUtilsTest {
                 () -> ListUtils.keyValuesToMap("1"));
     }
 
-    @Test
-    void keyValuesToMapObject() {
-        // Arrange Act Assert
-        Assertions.assertEquals(ListUtils.keyValuesToMapObject("1", "2"), new HashMap<String, String>() {{
-            this.put("1", "2");
-        }});
-    }
-
 }

@@ -7,11 +7,10 @@ import v1.aimodel.AIModel;
 import v1.model.*;
 import v1.model.agent.AgentState;
 import v1.model.agent.Tool;
-import v1.prompt.PromptTemplateRenderer;
+import v1.prompt.PromptTemplate;
 import v1.transformer.AIModelOutputToTool;
 import v1.utils.ListUtils;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -23,21 +22,20 @@ public class TemplateModel {
     final PromptTemplate promptTemplate;
 
     public String completion(final String... keyValuePairs) {
-        return completion(ListUtils.keyValuesToMapObject(keyValuePairs));
+        return completion(ListUtils.keyValuesToMap(keyValuePairs));
     }
 
     public String completion(final PromptParameter promptParameter) {
         return completion(promptParameter.getPromptParameters());
     }
 
-    public String completion(final Map<String, Object> parameters) {
-        final String prompt = PromptTemplateRenderer.format(promptTemplate,
-                parameters);
+    public String completion(final Map<String, String> parameters) {
+        final String prompt = promptTemplate.format(parameters);
         return aiModel.completion(prompt);
     }
 
     // https://github.com/hwchase17/langchain/blob/master/langchain/agents/mrkl/base.py
-    public static void executeMRKL(final AIModel aiModel, final PromptTemplate promptTemplate,
+    public static void executeMRKL(final AIModel aiModel,
                                  final List<Tool> tools, final AIModelOutputToTool aiModelOutputToTool,
                                  final String... kvPairs) {
 

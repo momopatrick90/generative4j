@@ -6,6 +6,8 @@ Generative4j java library that helps you:
 * Use, extend and create Summarizers.
 * Use, extend and create AI Agents and tools.
 
+### Installing
+* Todo
 
 ### Sample creation of AIModel for OpenAI.
 ```java
@@ -36,6 +38,11 @@ public class ExampleApp {
 }
 ```
 
+#### Output
+```text
+The capital of France is Paris.
+```
+
 ### Calling the chat completion api. 
 
 ```java
@@ -62,10 +69,50 @@ public class ExampleApp {
 }
 ```
 
-## PromptTemplates
+#### Output
+```text
+Paris, the city of love, fashion, art, and culture. It is the place that most people dream of visiting at least once in their life...
+```
 
 
+### PromptTemplates
+```java
+public class ExampleApp {
+  public static void main(String[] args) {
+    PromptTemplate promptTemplate = PromptTemplate.builder()
+            .text("My name is {name} and i come form {country}")
+            .build();
+    System.out.println("Rendered with kv: " + promptTemplate.format("name", "Patson", "country", "Canada"));
 
+    HashMap<String, String> kv = new HashMap<>();
+    kv.put("name", "Patson");
+    kv.put("country", "Canada");
+    System.out.println("Rendered with map: " + promptTemplate.format(kv));
+  }
+}
+```
+#### Output
+```text
+Rendered with kv: My name is Patson and i come form Canada
+Rendered with map: My name is Patson and i come form Canada
+```
+
+### TextSplitting
+```java
+public class ExampleApp {
+  public static void main(String[] args) {
+    PromptTemplate promptTemplate = PromptTemplate.builder()
+            .text("My name is {name} and i come form {country}")
+            .build();
+    System.out.println("Rendered with kv: " + promptTemplate.format("name", "Patson", "country", "Canada"));
+
+    HashMap<String, String> kv = new HashMap<>();
+    kv.put("name", "Patson");
+    kv.put("country", "Canada");
+    System.out.println("Rendered with map: " + promptTemplate.format(kv));
+  }
+}
+```
 
 # TODO 
 * Localization

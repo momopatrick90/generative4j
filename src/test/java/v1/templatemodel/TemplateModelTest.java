@@ -5,12 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import v1.aimodel.AIModel;
-import v1.model.CompletionRequest;
-import v1.model.CompletionResponseChoice;
 import v1.model.PromptParameter;
-import v1.model.PromptTemplate;
+import v1.prompt.PromptTemplate;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 
@@ -20,7 +17,7 @@ class TemplateModelTest {
     void completion() {
         //Arrange
         final PromptTemplate promptTemplate = new PromptTemplate("a prompt containing {parameter}");
-        final HashMap<String, Object> map = new HashMap<>();
+        final HashMap<String, String> map = new HashMap<>();
         map.put("parameter", "paramValue");
         final AIModel aiModel = Mockito.mock(AIModel.class);
         Mockito.when(aiModel.completion(Mockito.anyString())).thenReturn("test message");
@@ -41,7 +38,7 @@ class TemplateModelTest {
     void completionPromptParameter() {
         //Arrange
         final PromptTemplate promptTemplate = new PromptTemplate("a prompt containing {parameter}");
-        final HashMap<String, Object> map = new HashMap<>();
+        final HashMap<String, String> map = new HashMap<>();
         map.put("parameter", "paramValue");
         final PromptParameter promptParameter = PromptParameter.builder()
                 .promptParameters(map)
