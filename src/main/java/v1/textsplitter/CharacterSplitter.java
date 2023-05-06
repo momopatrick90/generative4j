@@ -5,16 +5,15 @@ import v1.model.Generative4jException;
 import v1.utils.StringUtils;
 
 import java.util.*;
-import java.util.regex.Pattern;
 
 @AllArgsConstructor
-public class CharacterLimitSplitter implements TextSplitter{
-    int chunkLimit;
+public class CharacterSplitter implements TextSplitter{
+    int chunkSize;
     // TODO split window size, make sure split takes into account largest window
 
     @Override
     public List<String> split(String text, List<String> splits) {
-        if (chunkLimit >= text.length()) {
+        if (chunkSize >= text.length()) {
             return Arrays.asList(text);
         }
 
@@ -22,8 +21,8 @@ public class CharacterLimitSplitter implements TextSplitter{
         final ArrayList<String> splitsReverseSorted = new ArrayList<>(splits);
         splitsReverseSorted.sort(Comparator.comparing(s -> -s.length()));
 
-        if (chunkLimit <= 0) {
-            throw new Generative4jException("Chunk limit for split should be larger than 0, actual: " + chunkLimit);
+        if (chunkSize <= 0) {
+            throw new Generative4jException("Chunk limit for split should be larger than 0, actual: " + chunkSize);
         }
 
         final LinkedList<String> result = new LinkedList<>();
@@ -39,7 +38,7 @@ public class CharacterLimitSplitter implements TextSplitter{
                 }
             }
 
-            if ((chunkLimit == i - lastStart)) {
+            if ((chunkSize == i - lastStart)) {
                 if (lastSplitIndex > 0) {
                     result.add(text.substring(lastStart, lastSplitIndex+1));
                     lastStart = lastSplitIndex+1;

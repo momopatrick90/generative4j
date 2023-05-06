@@ -101,17 +101,23 @@ Rendered with map: My name is Patson and i come form Canada
 ```java
 public class ExampleApp {
   public static void main(String[] args) {
-    PromptTemplate promptTemplate = PromptTemplate.builder()
-            .text("My name is {name} and i come form {country}")
-            .build();
-    System.out.println("Rendered with kv: " + promptTemplate.format("name", "Patson", "country", "Canada"));
+    CharacterSplitter characterSplitter = new CharacterSplitter(55);
+    List<String> chunks =  characterSplitter.split("Paris the city of love fashion art and culture. It is the place that most people dream of visiting at least once in their life",
+            Arrays.asList(". "));
+    System.out.println("Splitting using `. `   " + chunks);
 
-    HashMap<String, String> kv = new HashMap<>();
-    kv.put("name", "Patson");
-    kv.put("country", "Canada");
-    System.out.println("Rendered with map: " + promptTemplate.format(kv));
+    List<String> chunks2 =  characterSplitter.split("Paris the city of love fashion art and culture. It is the place that most people dream of visiting at least once in their life",
+            Arrays.asList(". ", " "));
+    System.out.println("Splitting using `. `, ` `  " + chunks2);
   }
 }
+```
+
+#### Output
+```text
+Splitting using `. `   [Paris the city of love fashion art and culture. , It is the place that most people dream of visiting at l, east once in their life]
+Splitting using  `. `, ` `  [Paris the city of love fashion art and culture. It is , the place that most people dream of visiting at least , once in their life]
+* ChunkSize is 55, spaces are not split in the second call
 ```
 
 # TODO 
