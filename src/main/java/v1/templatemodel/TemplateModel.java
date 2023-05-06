@@ -3,6 +3,7 @@ package v1.templatemodel;
 import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import v1.aimodel.AIModel;
 import v1.model.*;
 import v1.model.agent.AgentState;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 @Builder
 @AllArgsConstructor
+@Getter
 public class TemplateModel {
     private static Gson GSON = new Gson();
     final AIModel aiModel;

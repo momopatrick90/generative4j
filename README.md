@@ -11,6 +11,8 @@ Generative4j java library that helps you:
 
 ### Sample creation of AIModel for OpenAI.
 ```java
+import v1.aimodel.AIModel;
+import v1.aimodel.OpenAI;
 public class ExampleApp {
   public static void main(String[] args) {
     final AIModel aiModel = OpenAI.builder()
@@ -25,6 +27,8 @@ public class ExampleApp {
 ### Calling the completion api.
 
 ```java
+import v1.aimodel.AIModel;
+import v1.aimodel.OpenAI;
 public class ExampleApp {
   public static void main(String[] args) {
     final AIModel aiModel = OpenAI.builder()
@@ -32,7 +36,7 @@ public class ExampleApp {
             .defaultModel(OpenAI.TEXT_DAVINCI_003)
             .key("API_KEY")
             .build();
-    String text = aiModel.completion("What is the capital of france?");
+    final String text = aiModel.completion("What is the capital of france?");
     System.out.println(text);
   }
 }
@@ -46,6 +50,11 @@ The capital of France is Paris.
 ### Calling the chat completion api. 
 
 ```java
+import v1.aimodel.AIModel;
+import v1.aimodel.OpenAI;
+import v1.model.ChatCompletionMessage;
+import v1.model.ChatCompletionRole;
+
 public class ExampleApp {
   public static void main(String[] args) {
     final AIModel aiModel = OpenAI.builder()
@@ -77,14 +86,20 @@ Paris, the city of love, fashion, art, and culture. It is the place that most pe
 
 ### PromptTemplates
 ```java
+import v1.aimodel.AIModel;
+import v1.aimodel.OpenAI;
+import v1.prompt.PromptTemplate;
+import v1.templatemodel.TemplateModel;
+import v1.textsplitter.CharacterSplitter;
+
 public class ExampleApp {
   public static void main(String[] args) {
-    PromptTemplate promptTemplate = PromptTemplate.builder()
+    final PromptTemplate promptTemplate = PromptTemplate.builder()
             .text("My name is {name} and i come form {country}")
             .build();
     System.out.println("Rendered with kv: " + promptTemplate.format("name", "Patson", "country", "Canada"));
 
-    HashMap<String, String> kv = new HashMap<>();
+    final HashMap<String, String> kv = new HashMap<>();
     kv.put("name", "Patson");
     kv.put("country", "Canada");
     System.out.println("Rendered with map: " + promptTemplate.format(kv));
@@ -97,16 +112,65 @@ Rendered with kv: My name is Patson and i come form Canada
 Rendered with map: My name is Patson and i come form Canada
 ```
 
-### TextSplitting
+### TemplateModel
+TemplateModel combine templates and models.
+
 ```java
+import v1.aimodel.AIModel;
+import v1.aimodel.OpenAI;
+import v1.prompt.PromptTemplate;
+import v1.templatemodel.TemplateModel;
+import v1.textsplitter.CharacterSplitter;
+
 public class ExampleApp {
   public static void main(String[] args) {
-    CharacterSplitter characterSplitter = new CharacterSplitter(55);
-    List<String> chunks =  characterSplitter.split("Paris the city of love fashion art and culture. It is the place that most people dream of visiting at least once in their life",
+    final AIModel aiModel = OpenAI.builder()
+            .closeableHttpClient(HttpClientBuilder.create().build())
+            .defaultModel(OpenAI.TEXT_DAVINCI_003)
+            .key("API_KEY")
+            .build();
+    
+    final PromptTemplate bornTemplate = PromptTemplate.builder()
+            .text("Where was  {name} born?")
+            .build();
+
+    final TemplateModel bornTemplateModel = TemplateModel.builder()
+            .aiModel(aiModel)
+            .promptTemplate(bornTemplate)
+            .build();
+
+    String result1 = bornTemplateModel.completion("name", "Obama");
+    String result2 = bornTemplateModel.completion("name", "Gandhi");
+    System.out.println("Result Obama:  " + result1);
+    System.out.println("Result Gandhi: " + result2);
+  }
+}
+```
+#### Output
+```text
+Result Obama:  Barack Obama was born in Honolulu, Hawaii, United States.
+Result Gandhi: Mohandas Karamchand Gandhi was born in Porbandar, a coastal town in present-day Gujarat, India on October 2, 1869.
+```
+
+
+
+### TextSplitting
+```java
+import v1.aimodel.AIModel;
+import v1.aimodel.OpenAI;
+import v1.prompt.PromptTemplate;
+import v1.templatemodel.TemplateModel;
+import v1.textsplitter.CharacterSplitter;
+
+public class ExampleApp {
+  public static void main(String[] args) {
+    // This will split the character, while trying to chunkSize 55.
+    final CharacterSplitter characterSplitter = new CharacterSplitter(55);
+    final List<String> chunks =  characterSplitter.split("Paris the city of love fashion art and culture. It is the place that most people dream of visiting at least once in their life",
             Arrays.asList(". "));
     System.out.println("Splitting using `. `   " + chunks);
 
-    List<String> chunks2 =  characterSplitter.split("Paris the city of love fashion art and culture. It is the place that most people dream of visiting at least once in their life",
+    final List<String> chunks2 =  characterSplitter.split("Paris the city of love fashion art and culture. It is the place that most people dream of visiting at least once in their life",
             Arrays.asList(". ", " "));
     System.out.println("Splitting using `. `, ` `  " + chunks2);
   }
@@ -117,8 +181,8 @@ public class ExampleApp {
 ```text
 Splitting using `. `   [Paris the city of love fashion art and culture. , It is the place that most people dream of visiting at l, east once in their life]
 Splitting using  `. `, ` `  [Paris the city of love fashion art and culture. It is , the place that most people dream of visiting at least , once in their life]
-* ChunkSize is 55, spaces are not split in the second call
 ```
+
 
 # TODO 
 * Localization

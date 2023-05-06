@@ -2,6 +2,7 @@ package v1.prompt;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import v1.model.Generative4jException;
 
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.Map;
  */
 @Builder
 @AllArgsConstructor
+@Getter
 public class PromptTemplate {
     private static final String OPENING_BRACES = "{";
     private static final String CLOSING_BRACES = "}";
