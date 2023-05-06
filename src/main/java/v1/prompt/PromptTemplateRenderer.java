@@ -1,5 +1,6 @@
 package v1.prompt;
 
+import lombok.Builder;
 import v1.model.Generative4jException;
 import v1.model.PromptTemplate;
 
@@ -11,6 +12,7 @@ import java.util.Map;
  * It has a constructor that takes a prompt template string and a format() method that takes a variable number of
  * key-value pairs and returns the formatted prompt string.
  */
+@Builder
 public class PromptTemplateRenderer {
     private static final String OPENING_BRACES = "{";
     private static final String CLOSING_BRACES = "}";

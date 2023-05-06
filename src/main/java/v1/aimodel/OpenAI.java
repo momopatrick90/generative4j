@@ -12,6 +12,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import v1.model.*;
 import v1.model.agent.metric.Metric;
@@ -60,7 +61,8 @@ public class OpenAI extends AIModel {
     private static final String USAGE = "usage";
     private static final String ERROR = "error";
     private static Gson GSON = new Gson();
-    private CloseableHttpClient closeableHttpClient;
+    @Builder.Default
+    private CloseableHttpClient closeableHttpClient = HttpClientBuilder.create().build();
     private String key;
     @Builder.Default
     private String defaultModel = null;
