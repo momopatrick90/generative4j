@@ -65,6 +65,22 @@ class OpenAITest {
     }
 
     @Test
+    void completionError() throws IOException {
+        // Arrange
+        final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createChatResponseError());
+        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model", 0d, false);
+
+        // Act Assert
+        Generative4jException exception = Assertions.assertThrows(Generative4jException.class, () -> openAIClient.completion(CompletionRequest.builder()
+                .prompt("prompt")
+                .temperature(27d)
+                .language("en")
+                .model("model")
+                .build()));
+        Assertions.assertTrue(exception.getMessage().contains("error-message"));
+    }
+
+    @Test
     void completionParameters() throws IOException {
         // Arrange
         final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createResponse());
@@ -208,6 +224,25 @@ class OpenAITest {
     }
 
     @Test
+    void chatCompletionException() throws IOException {
+        // Arrange
+        final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createChatResponseError());
+        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model", 0d, false);
+
+        // Act
+        Generative4jException exception = Assertions.assertThrows(Generative4jException.class, () -> openAIClient.chatCompletion(ChatCompletionRequest.builder()
+                .messages(Arrays.asList(ChatCompletionMessage.builder()
+                        .content("content")
+                        .role("role")
+                        .build()))
+                .temperature(27d)
+                .language("en")
+                .model("model")
+                .build()));
+        Assertions.assertTrue(exception.getMessage().contains("error-message"));
+    }
+
+    @Test
     void chatCompletionParameters() throws IOException {
         final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createChatResponse());
         final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",0d, false);
@@ -327,6 +362,12 @@ class OpenAITest {
                 "    \"completion_tokens\": 12,\n" +
                 "    \"total_tokens\": 21\n" +
                 "  }\n" +
+                "} ", JsonObject.class);
+    }
+
+    private JsonObject createChatResponseError() {
+        return new Gson().fromJson(" {\n" +
+                "  \"error\": \"error-message\"" +
                 "} ", JsonObject.class);
     }
 }

@@ -29,6 +29,17 @@ import java.util.Optional;
 @AllArgsConstructor
 @Builder
 public class OpenAI extends AIModel {
+    public static final String GPT_4 = "gpt-4";
+    public static final String GPT_4_0314 = "gpt-4-0314";
+    public static final String GPT_4_32K = "gpt-4-32k";
+    public static final String GPT_4_32K_0314 = "gpt-4-32k-0314";
+    public static final String GPT_35_TURBO = "gpt-3.5-turbo";
+    public static final String GPT_35_TURBO_0301 = "gpt-3.5-turbo-0301";
+    public static final String TEXT_DAVINCI_003 = "text-davinci-003";
+    public static final String TEXT_DAVINCI_002 = "text-davinci-002";
+    public static final String TEXT_CURIE_001 = "text-curie-001";
+    public static final String TEXT_BABBAGE_001 = "text-babbage-001";
+    public static final String TEXT_ADA_001 = "text-ada-001";
     private static final String CHAT_COMPLETIONS = "https://api.openai.com/v1/chat/completions";
     private static final String COMPLETIONS = "https://api.openai.com/v1/completions";
     private static final String ACCEPT = "Accept";
@@ -47,6 +58,7 @@ public class OpenAI extends AIModel {
     private static final String COMPLETION_TOKENS = "completion_tokens";
     private static final String TOTAL_TOKENS = "total_tokens";
     private static final String USAGE = "usage";
+    private static final String ERROR = "error";
     private static Gson GSON = new Gson();
     private CloseableHttpClient closeableHttpClient;
     private String key;
@@ -71,7 +83,7 @@ public class OpenAI extends AIModel {
 
         try (final CloseableHttpResponse response = closeableHttpClient.execute(httpPost, HttpClientContext.create())) {
             final String responseString = EntityUtils.toString(response.getEntity());
-            final JsonObject jsonObject = GSON.fromJson(responseString, JsonObject.class);
+            final JsonObject jsonObject = throwExceptionError(GSON.fromJson(responseString, JsonObject.class));
             return mapToCompletionResponse(jsonObject);
         } catch (ClientProtocolException e) {
             throw new Generative4jException(e);
@@ -89,7 +101,7 @@ public class OpenAI extends AIModel {
 
         try (final CloseableHttpResponse response = closeableHttpClient.execute(httpPost, HttpClientContext.create())) {
             final String responseString = EntityUtils.toString(response.getEntity());
-            final JsonObject jsonObject = GSON.fromJson(responseString, JsonObject.class);
+            final JsonObject jsonObject = throwExceptionError(GSON.fromJson(responseString, JsonObject.class));
             return mapToChatCompletionResponse(jsonObject);
         } catch (ClientProtocolException e) {
             throw new Generative4jException(e);
@@ -244,6 +256,14 @@ public class OpenAI extends AIModel {
                         .build())
                 .metrics(chatCompletionResponse.getMetrics())
                 .build();
+    }
+
+    private JsonObject throwExceptionError(final JsonObject jsonObject) {
+        if(jsonObject.get(ERROR) != null) {
+            throw new Generative4jException(jsonObject.toString());
+        }
+
+        return jsonObject;
     }
 
     @Builder
