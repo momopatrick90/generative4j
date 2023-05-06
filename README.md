@@ -1,6 +1,6 @@
 ### Overview
 Generative4j java library that helps you: 
-* Integrate with ai/ml models, currently on OpenAI GPT is supported.
+* Integrate with ai/ml models, currently only OpenAI GPT is supported.
 * Use, extend and create PromptTemplates.
 * Perform text splitting.
 * Use, extend and create Summarizers.
@@ -183,6 +183,41 @@ Splitting using `. `   [Paris the city of love fashion art and culture. , It is 
 Splitting using  `. `, ` `  [Paris the city of love fashion art and culture. It is , the place that most people dream of visiting at least , once in their life]
 ```
 
+### Summarization
+```java
+import v1.aimodel.AIModel;
+import v1.aimodel.OpenAI;
+import v1.prompt.PromptTemplate;
+import v1.templatemodel.TemplateModel;
+import v1.textsplitter.CharacterSplitter;
+
+public class ExampleApp {
+  public static void main(String[] args) {
+    final AIModel aiModel = OpenAI.builder()
+            .closeableHttpClient(HttpClientBuilder.create().build())
+            .defaultModel(OpenAI.TEXT_DAVINCI_003)
+            .key("API_KEY")
+            .build();
+
+    final String largeText = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().getResource("prompteng.txt").toURI())));
+    final List<String> splitText = CharacterSplitter.builder()
+            .chunkSize(500)
+            .build()
+            .split(largeText, Arrays.asList(". "));
+    Summarizer summarizer = SequentialSummarizer.createDefault(aiModel);
+    String summarized = summarizer.summarize(splitText);
+    System.out.println("Summarized largeText  " + summarized);
+  }
+}
+```
+
+```
+
+
+#### Output
+```text
+Summarized largeText  OpenAI advocates for precision and careful analysis in text analysis to avoid accuracy issues caused by language model limitations. Breaking down tasks, using relevant techniques and quotes from source documents can reduce unrealistic information in analysis. The video emphasizes the completion of guidelines for prompting and encourages progression toward an iterative prompt development process.
+```
 
 # TODO 
 * Localization

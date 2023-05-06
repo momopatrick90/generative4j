@@ -26,8 +26,6 @@ public class SequentialSummarizer extends Summarizer{
 
         for (final String string : stringList) {
             currentSummary = templateModel.completion("currentSummary", currentSummary, "text", string);
-
-            System.out.println("currentSummary " + currentSummary);
         }
 
         return currentSummary;
@@ -44,5 +42,14 @@ public class SequentialSummarizer extends Summarizer{
                 .build();
     }
 
-    public static final String DEFAULT_PROMPT = "";
+    public static final String DEFAULT_PROMPT = "Write a concise summary of the following texts in triple backticks:" +
+            "\n" +
+            "```" +
+            "{currentSummary}" +
+            "```" +
+            "\n" +
+            "```" +
+            "{text}" +
+            "```" +
+            "CONCISE SUMMARY:";
 }

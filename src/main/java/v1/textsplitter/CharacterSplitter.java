@@ -1,12 +1,14 @@
 package v1.textsplitter;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import v1.model.Generative4jException;
 import v1.utils.StringUtils;
 
 import java.util.*;
 
 @AllArgsConstructor
+@Builder
 public class CharacterSplitter implements TextSplitter{
     int chunkSize;
     // TODO split window size, make sure split takes into account largest window

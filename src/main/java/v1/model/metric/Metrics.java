@@ -1,4 +1,4 @@
-package v1.model.agent.metric;
+package v1.model.metric;
 
 import lombok.Builder;
 import lombok.Getter;

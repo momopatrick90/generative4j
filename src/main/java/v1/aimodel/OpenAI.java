@@ -15,10 +15,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import v1.model.*;
-import v1.model.agent.metric.Metric;
-import v1.model.agent.metric.MetricName;
-import v1.model.agent.metric.MetricUnit;
-import v1.model.agent.metric.Metrics;
+import v1.model.metric.Metric;
+import v1.model.metric.MetricName;
+import v1.model.metric.MetricUnit;
+import v1.model.metric.Metrics;
 
 import java.io.IOException;
 import java.util.Arrays;

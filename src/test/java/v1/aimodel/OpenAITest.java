@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import v1.model.*;
-import v1.model.agent.metric.MetricUnit;
+import v1.model.metric.MetricUnit;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

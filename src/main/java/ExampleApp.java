@@ -1,5 +1,6 @@
 import v1.aimodel.AIModel;
 import v1.aimodel.OpenAI;
+
 import v1.model.ChatCompletionMessage;
 import v1.model.ChatCompletionRole;
 import v1.prompt.PromptTemplate;
@@ -7,13 +8,16 @@ import v1.summarize.SequentialSummarizer;
 import v1.summarize.Summarizer;
 import v1.templatemodel.TemplateModel;
 import v1.textsplitter.CharacterSplitter;
-
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 public class ExampleApp {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, URISyntaxException {
         final AIModel aiModel = OpenAI.builder()
                 .defaultModel(OpenAI.GPT_35_TURBO)
                 .useChatAsCompletion(true)              // GPT_35_TURBO does not completion api, but is cheaper.
@@ -77,15 +81,17 @@ public class ExampleApp {
         System.out.println("Splitting using `. `, ` `  " + chunks2);
         System.out.println("\n\n\n");
 
-        String summarizingPrompt = "";
-        Summarizer summarizer = SequentialSummarizer.builder()
-                .templateModel(TemplateModel.builder()
-                        .promptTemplate(PromptTemplate.builder()
-                                .text("summarizingPrompt")
-                                .build())
-                        .aiModel(aiModel)
-                        .build())
-                .build();
+        final String largeText = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().getResource("prompteng.txt").toURI())));
+        List<String> splitText = CharacterSplitter.builder()
+                .chunkSize(500)
+                .build()
+                .split(largeText, Arrays.asList(". "));
+        Summarizer summarizer = SequentialSummarizer.createDefault(aiModel);
+        String summarized = summarizer.summarize(splitText);
+        System.out.println("Summarized largeText  " + summarized);
+
+
+
 
        // String text = aiModel.completion("Write a story on Paris?");
         //System.out.println(text);

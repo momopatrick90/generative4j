@@ -1,4 +1,4 @@
-package v1.model.agent.metric;
+package v1.model.metric;
 
 public class MetricName {
     public final static String PROMPT_TOKEN = "prompt_tokens";
