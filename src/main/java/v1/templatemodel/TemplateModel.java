@@ -33,17 +33,7 @@ public class TemplateModel {
     public String completion(final Map<String, Object> parameters) {
         final String prompt = PromptTemplateRenderer.format(promptTemplate,
                 parameters);
-
-        final CompletionRequest completionRequest = CompletionRequest.builder()
-                .prompt(prompt)
-                .build();
-
-        final CompletionResponse completionResponse =
-                aiModel.completion(completionRequest);
-
-        final List<CompletionResponseChoice> choices = completionResponse
-                .getCompletionResponseChoices().getCompletionResponseChoiceList();
-        return choices.get(choices.size()-1).getText();
+        return aiModel.completion(prompt);
     }
 
     // https://github.com/hwchase17/langchain/blob/master/langchain/agents/mrkl/base.py

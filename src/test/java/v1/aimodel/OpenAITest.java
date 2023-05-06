@@ -31,7 +31,7 @@ class OpenAITest {
     void completion() throws IOException {
         // Arrange
         final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createResponse());
-        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",false);
+        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",0d, false);
 
         // Act
         final CompletionResponse completionResponse = openAIClient.completion(CompletionRequest.builder()
@@ -68,7 +68,7 @@ class OpenAITest {
     void completionParameters() throws IOException {
         // Arrange
         final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createResponse());
-        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",false);
+        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",0d, false);
 
         // Act
         final CompletionResponse completionResponse = openAIClient.completion(CompletionRequest.builder()
@@ -97,7 +97,7 @@ class OpenAITest {
     void completionParametersDefaultModel() throws IOException {
         // Arrange
         final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createResponse());
-        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model-str",false);
+        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model-str",0d, false);
 
         // Act
         final CompletionResponse completionResponse = openAIClient.completion(CompletionRequest.builder()
@@ -121,7 +121,7 @@ class OpenAITest {
     void completionUseChatAsCompletion() throws IOException {
         // Arrange
         final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createChatResponse());
-        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",true);
+        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",0d, true);
 
         // Act
         final CompletionResponse completionResponse = openAIClient.completion(CompletionRequest.builder()
@@ -170,7 +170,7 @@ class OpenAITest {
     void chatCompletion() throws IOException {
         // Arrange
         final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createChatResponse());
-        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",false);
+        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",0d, false);
 
         // Act
         ChatCompletionResponse chatCompletionResponse = openAIClient.chatCompletion(ChatCompletionRequest.builder()
@@ -210,7 +210,7 @@ class OpenAITest {
     @Test
     void chatCompletionParameters() throws IOException {
         final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createChatResponse());
-        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",false);
+        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model",0d, false);
 
         // Act
          openAIClient.chatCompletion(ChatCompletionRequest.builder()
@@ -241,7 +241,7 @@ class OpenAITest {
     @Test
     void chatCompletionParametersDefaultModel() throws IOException {
         final CloseableHttpClient closeableHttpClient = mockCloseableHttpClientWithTitle(createChatResponse());
-        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model-str",false);
+        final OpenAI openAIClient = new OpenAI(closeableHttpClient, "key", "default-model-str",0d, false);
 
         // Act
         openAIClient.chatCompletion(ChatCompletionRequest.builder()

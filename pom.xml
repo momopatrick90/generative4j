@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.github.generative4j</groupId>
+    <groupId>com.generative4j</groupId>
     <artifactId>generative4j</artifactId>
-    <version>1.0-Alpha</version>
+    <version>1.0-SNAPSHOT</version>
 
     <properties>
         <junit5.version>5.6.0</junit5.version>
@@ -15,6 +15,10 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
+
+    <!--
+    * https://www.baeldung.com/executable-jar-with-maven#thymeleaf
+    -->
 
     <dependencies>
         <dependency>

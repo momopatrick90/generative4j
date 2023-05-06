@@ -5,7 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import v1.aimodel.AIModel;
-import v1.model.*;
+import v1.model.CompletionRequest;
+import v1.model.CompletionResponseChoice;
+import v1.model.PromptParameter;
+import v1.model.PromptTemplate;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,26 +22,18 @@ class TemplateModelTest {
         final PromptTemplate promptTemplate = new PromptTemplate("a prompt containing {parameter}");
         final HashMap<String, Object> map = new HashMap<>();
         map.put("parameter", "paramValue");
-        final CompletionResponseChoice mockChoice = CompletionResponseChoice.builder()
-                .text("test message")
-                .build();
-        final CompletionResponse mockResponse = CompletionResponse.builder()
-                .completionResponseChoices(CompletionResponseChoices.builder()
-                        .completionResponseChoiceList(Arrays.asList(mockChoice))
-                        .build())
-                .build();
         final AIModel aiModel = Mockito.mock(AIModel.class);
-        Mockito.when(aiModel.completion(Mockito.any())).thenReturn(mockResponse);
+        Mockito.when(aiModel.completion(Mockito.anyString())).thenReturn("test message");
         final TemplateModel templateModel = new TemplateModel(aiModel, promptTemplate);
 
         // Act
         final String result = templateModel.completion(map);
 
         // Assert
-        final ArgumentCaptor<CompletionRequest> argumentCaptor = ArgumentCaptor.forClass(CompletionRequest.class);
+        final ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(aiModel).completion(argumentCaptor.capture());
         Assertions.assertEquals(result,"test message");
-        Assertions.assertEquals(argumentCaptor.getValue().getPrompt(),
+        Assertions.assertEquals(argumentCaptor.getValue(),
                 "a prompt containing paramValue");
     }
 
@@ -51,16 +46,9 @@ class TemplateModelTest {
         final PromptParameter promptParameter = PromptParameter.builder()
                 .promptParameters(map)
                 .build();
-        final CompletionResponseChoice mockChoice = CompletionResponseChoice.builder()
-                .text("test message")
-                .build();
-        final CompletionResponse mockResponse = CompletionResponse.builder()
-                .completionResponseChoices(CompletionResponseChoices.builder()
-                        .completionResponseChoiceList(Arrays.asList(mockChoice))
-                        .build())
-                .build();
+
         final AIModel aiModel = Mockito.mock(AIModel.class);
-        Mockito.when(aiModel.completion(Mockito.any())).thenReturn(mockResponse);
+        Mockito.when(aiModel.completion(Mockito.anyString())).thenReturn("test message");
         final TemplateModel templateModel = new TemplateModel(aiModel, promptTemplate);
 
 
@@ -68,10 +56,10 @@ class TemplateModelTest {
         final String result = templateModel.completion(promptParameter);
 
         // Assert
-        final ArgumentCaptor<CompletionRequest> argumentCaptor = ArgumentCaptor.forClass(CompletionRequest.class);
+        final ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(aiModel).completion(argumentCaptor.capture());
         Assertions.assertEquals(result,"test message");
-        Assertions.assertEquals(argumentCaptor.getValue().getPrompt(),
+        Assertions.assertEquals(argumentCaptor.getValue(),
                 "a prompt containing paramValue");
     }
 
@@ -79,16 +67,8 @@ class TemplateModelTest {
     void completionKeyValues() {
         //Arrange
         final PromptTemplate promptTemplate = new PromptTemplate("a prompt containing {parameter}");
-        final CompletionResponseChoice mockChoice = CompletionResponseChoice.builder()
-                .text("test message")
-                .build();
-        final CompletionResponse mockResponse = CompletionResponse.builder()
-                .completionResponseChoices(CompletionResponseChoices.builder()
-                        .completionResponseChoiceList(Arrays.asList(mockChoice))
-                        .build())
-                .build();
         final AIModel aiModel = Mockito.mock(AIModel.class);
-        Mockito.when(aiModel.completion(Mockito.any())).thenReturn(mockResponse);
+        Mockito.when(aiModel.completion(Mockito.anyString())).thenReturn("test message");
         final TemplateModel templateModel = new TemplateModel(aiModel, promptTemplate);
 
 
@@ -96,10 +76,10 @@ class TemplateModelTest {
         final String result = templateModel.completion( "parameter", "paramValue");
 
         // Assert
-        final ArgumentCaptor<CompletionRequest> argumentCaptor = ArgumentCaptor.forClass(CompletionRequest.class);
+        final ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(aiModel).completion(argumentCaptor.capture());
         Assertions.assertEquals(result,"test message");
-        Assertions.assertEquals(argumentCaptor.getValue().getPrompt(),
+        Assertions.assertEquals(argumentCaptor.getValue(),
                 "a prompt containing paramValue");
     }
 }

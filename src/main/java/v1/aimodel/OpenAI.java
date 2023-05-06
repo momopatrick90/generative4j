@@ -27,6 +27,7 @@ import java.util.Optional;
 
 @Slf4j
 @AllArgsConstructor
+@Builder
 public class OpenAI extends AIModel {
     private static final String CHAT_COMPLETIONS = "https://api.openai.com/v1/chat/completions";
     private static final String COMPLETIONS = "https://api.openai.com/v1/completions";
@@ -49,8 +50,12 @@ public class OpenAI extends AIModel {
     private static Gson GSON = new Gson();
     private CloseableHttpClient closeableHttpClient;
     private String key;
-    private String defaultModel;
-    private Boolean useChatAsCompletion;
+    @Builder.Default
+    private String defaultModel = null;
+    @Builder.Default
+    private Double defaultTemperature = null;
+    @Builder.Default
+    private boolean useChatAsCompletion = false;
 
     @Override
     public CompletionResponse completion(CompletionRequest completionRequest) {
@@ -59,7 +64,7 @@ public class OpenAI extends AIModel {
                     .mapCompletionRequestToChatCompletionRequest(completionRequest)));
         }
 
-        completionRequest = updateModelIfNotPresent(completionRequest);
+        completionRequest = updateDefaults(completionRequest, this.defaultModel, this.defaultTemperature);
         final HttpPost httpPost = new HttpPost(COMPLETIONS);
 
         setDefaultHeaders(httpPost, completionRequest.getLanguage(), GSON.toJson(map(completionRequest)));
@@ -77,7 +82,7 @@ public class OpenAI extends AIModel {
 
     @Override
     public ChatCompletionResponse chatCompletion(ChatCompletionRequest chatCompletionRequest) {
-        chatCompletionRequest = updateModelIfNotPresent(chatCompletionRequest);
+        chatCompletionRequest = updateDefaults(chatCompletionRequest, this.defaultModel, this.defaultTemperature);
 
         final HttpPost httpPost = new HttpPost(CHAT_COMPLETIONS);
         setDefaultHeaders(httpPost, chatCompletionRequest.getLanguage(), GSON.toJson(map(chatCompletionRequest)));
@@ -101,24 +106,6 @@ public class OpenAI extends AIModel {
             httpPost.setHeader(ACCEPT_LANGUAGE, language);
         }
         httpPost.setEntity(new StringEntity(body,  "UTF-8"));
-    }
-
-    private ChatCompletionRequest updateModelIfNotPresent(ChatCompletionRequest chatCompletionRequest) {
-        if (chatCompletionRequest.getModel() == null) {
-            return chatCompletionRequest.toBuilder()
-                    .model(this.defaultModel)
-                    .build();
-        }
-        return chatCompletionRequest;
-    }
-
-    private CompletionRequest updateModelIfNotPresent(CompletionRequest completionRequest) {
-        if (completionRequest.getModel() == null) {
-            return completionRequest.toBuilder()
-                    .model(this.defaultModel)
-                    .build();
-        }
-        return completionRequest;
     }
 
     private OpenAiChatCompletionRequest map(ChatCompletionRequest chatCompletionRequest) {
