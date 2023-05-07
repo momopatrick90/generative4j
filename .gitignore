@@ -1,4 +1,5 @@
 *.idea
 *.zip
 *.class
+.DS_Store
 target/*

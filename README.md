@@ -4,7 +4,7 @@ Generative4j java library that helps you:
 * Use, extend and create PromptTemplates.
 * Perform text splitting.
 * Use, extend and create Summarizers.
-* Use, extend and create AI Agents and tools.
+* Use, extend and create AI Agents and tools. [WIP]
 
 ### Installing
 * Todo
