@@ -56,4 +56,14 @@ class PromptTemplateTest {
         // Assert
         Assertions.assertEquals(expected, actual);
     }
+
+    @Test
+    void partialFormat() {
+        // Arrange
+        final PromptTemplate prompt = new PromptTemplate("Hello {name} {otherName}");
+        final String expected = "Hello Alice Alice!";
+
+        // Act Assert
+        Assertions.assertEquals(prompt.partialFormat("name", "Alice").getText(), "Hello Alice {otherName}");
+    }
 }

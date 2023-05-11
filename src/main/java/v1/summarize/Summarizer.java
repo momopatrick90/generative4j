@@ -9,4 +9,10 @@ public abstract class Summarizer {
     public String summarize(final List<String> stringList) {
         return summarize("", stringList);
     }
+
+    public abstract String summarizeWithSource(final String initialSummary, final List<List<String>> stringList);
+
+    public String summarizeWithSource(final List<List<String>> stringList) {
+        return summarizeWithSource("", stringList);
+    }
 }

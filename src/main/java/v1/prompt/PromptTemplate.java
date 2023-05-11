@@ -55,4 +55,10 @@ public class PromptTemplate {
 
         return result;
     }
+
+    public PromptTemplate partialFormat(final String... keyValuePairs) {
+        return PromptTemplate.builder()
+                .text(format((keyValuePairs)))
+                .build();
+    }
 }

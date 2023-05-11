@@ -28,4 +28,22 @@ class SummarizerTest {
         Assertions.assertEquals(result, "summary");
         Mockito.verify(summarizer).summarize(Mockito.eq(""), Mockito.eq(input));
     }
+
+    @Test
+    void summarizeWithSource() {
+        // Arrange
+        final Summarizer summarizer = Mockito.mock(Summarizer.class);
+        Mockito.when(summarizer.summarizeWithSource(Mockito.anyString(), Mockito.anyList()))
+                .thenReturn("summary");
+        Mockito.when(summarizer.summarizeWithSource(Mockito.anyList()))
+                .thenCallRealMethod();
+
+        // Act
+        List<List<String>> input = Arrays.asList(Arrays.asList("test"));
+        String result = summarizer.summarizeWithSource(Arrays.asList(Arrays.asList("test")));
+
+        // Assert
+        Assertions.assertEquals(result, "summary");
+        Mockito.verify(summarizer).summarizeWithSource(Mockito.eq(""), Mockito.eq(input));
+    }
 }

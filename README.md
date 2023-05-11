@@ -1,6 +1,6 @@
 ### Overview
-Generative4j java library that helps you: 
-* Integrate with ai/ml models, currently only OpenAI GPT is supported.
+Generative4j is java library (similar to langchain) that helps you: 
+* Integrate and make calls ai/ml models, currently only OpenAI GPT models are supported.
 * Use, extend and create PromptTemplates.
 * Perform text splitting.
 * Use, extend and create Summarizers.
@@ -211,21 +211,19 @@ public class ExampleApp {
 }
 ```
 
-```
-
-
 #### Output
 ```text
 Summarized largeText  OpenAI advocates for precision and careful analysis in text analysis to avoid accuracy issues caused by language model limitations. Breaking down tasks, using relevant techniques and quotes from source documents can reduce unrealistic information in analysis. The video emphasizes the completion of guidelines for prompting and encourages progression toward an iterative prompt development process.
 ```
 
-# TODO 
-* Localization
-* Async
+# TODO
+* Add Agents and Tools
+  * AGIS
+* Add Java doc / Tutorial
+* Add Async
   * stream https://platform.openai.com/docs/api-reference/chat/create
-* Easy tool integration
 * Easy LLM integration
-* TTI/ITI integration
-* Cost/metric/usage https://platform.openai.com/docs/guides/embeddings/what-are-embeddings
-* Remove dependencies
-* API https://platform.openai.com/docs/api-reference/chat/create
+* Add Vector support and storing
+* More providers (Hugging, Cohere, LLama, etc)
+* Patterns, chat with data, retrieval, search
+* Improve modality

@@ -31,6 +31,17 @@ public class SequentialSummarizer extends Summarizer{
         return currentSummary;
     }
 
+    @Override
+    public String summarizeWithSource(final String initialSummary, final List<List<String>> stringList) {
+        String currentSummary = initialSummary;
+
+        for (final List<String> textAndSource : stringList) {
+            currentSummary = templateModel.completion("currentSummary", currentSummary, "text", textAndSource.get(0), "source", textAndSource.get(1));
+        }
+
+        return currentSummary;
+    }
+
     public static SequentialSummarizer createDefault(final AIModel aiModel) {
         return SequentialSummarizer.builder()
                 .templateModel(TemplateModel.builder()

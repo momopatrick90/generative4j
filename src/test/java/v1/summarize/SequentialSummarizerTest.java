@@ -33,6 +33,27 @@ class SequentialSummarizerTest {
     }
 
     @Test
+    void summarizeWithSource() {
+        // Arrange
+        String initialSummary = "initial";
+        String string1 = "String 1";
+        String string2 = "String 2";
+        TemplateModel mockTemplateModel = Mockito.mock(TemplateModel.class);
+        Mockito.when(mockTemplateModel.completion(Mockito.eq("currentSummary"), Mockito.eq(initialSummary), Mockito.eq("text"), Mockito.eq(string1), Mockito.eq("source"), Mockito.eq("source1")   )).thenReturn("Updated summary 1");
+        Mockito.when(mockTemplateModel.completion(Mockito.eq("currentSummary"), Mockito.eq("Updated summary 1"), Mockito.eq("text"), Mockito.eq(string2), Mockito.eq("source"), Mockito.eq("source2")  )).thenReturn("Updated summary 2");
+
+        SequentialSummarizer summarizer = SequentialSummarizer.builder()
+                .templateModel(mockTemplateModel)
+                .build();
+
+        // Act
+        String result = summarizer.summarizeWithSource(initialSummary, Arrays.asList(Arrays.asList(string1, "source1"), Arrays.asList(string2, "source2")));
+
+        // Assert
+        assertEquals("Updated summary 2", result);
+    }
+
+    @Test
     void createDefault() {
         // Arrange Act
         final AIModel aiModel = new AIModel();
