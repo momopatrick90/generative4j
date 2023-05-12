@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import v1.aimodel.AIModel;
+import v1.model.Document;
 import v1.prompt.PromptTemplate;
 import v1.templatemodel.TemplateModel;
 
@@ -32,11 +33,11 @@ public class SequentialSummarizer extends Summarizer{
     }
 
     @Override
-    public String summarizeWithSource(final String initialSummary, final List<List<String>> stringList) {
+    public String summarizeWithSource(final String initialSummary, final List<Document> stringList) {
         String currentSummary = initialSummary;
 
-        for (final List<String> textAndSource : stringList) {
-            currentSummary = templateModel.completion("currentSummary", currentSummary, "text", textAndSource.get(0), "source", textAndSource.get(1));
+        for (final Document textAndSource : stringList) {
+            currentSummary = templateModel.completion("currentSummary", currentSummary, "text", textAndSource.getText(), "source", textAndSource.getSource());
         }
 
         return currentSummary;

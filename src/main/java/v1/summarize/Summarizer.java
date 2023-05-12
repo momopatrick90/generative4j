@@ -1,5 +1,7 @@
 package v1.summarize;
 
+import v1.model.Document;
+
 import java.util.List;
 
 public abstract class Summarizer {
@@ -10,9 +12,9 @@ public abstract class Summarizer {
         return summarize("", stringList);
     }
 
-    public abstract String summarizeWithSource(final String initialSummary, final List<List<String>> stringList);
+    public abstract String summarizeWithSource(final String initialSummary, final List<Document> documents);
 
-    public String summarizeWithSource(final List<List<String>> stringList) {
-        return summarizeWithSource("", stringList);
+    public String summarizeWithSource(final List<Document> documents) {
+        return summarizeWithSource("", documents);
     }
 }

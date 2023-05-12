@@ -3,6 +3,7 @@ package v1.summarize;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import v1.model.Document;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,8 +40,8 @@ class SummarizerTest {
                 .thenCallRealMethod();
 
         // Act
-        List<List<String>> input = Arrays.asList(Arrays.asList("test"));
-        String result = summarizer.summarizeWithSource(Arrays.asList(Arrays.asList("test")));
+        List<Document> input = Arrays.asList(Document.builder().text("text").source("source").build());
+        String result = summarizer.summarizeWithSource(input);
 
         // Assert
         Assertions.assertEquals(result, "summary");

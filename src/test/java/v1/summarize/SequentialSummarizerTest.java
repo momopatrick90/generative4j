@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import v1.aimodel.AIModel;
+import v1.model.Document;
 import v1.templatemodel.TemplateModel;
 
 import java.util.Arrays;
@@ -47,7 +48,16 @@ class SequentialSummarizerTest {
                 .build();
 
         // Act
-        String result = summarizer.summarizeWithSource(initialSummary, Arrays.asList(Arrays.asList(string1, "source1"), Arrays.asList(string2, "source2")));
+        Document document1 = Document.builder()
+                .text(string1)
+                .source("source1")
+                .build();
+        Document document2 = Document.builder()
+                .text(string2)
+                .source("source2")
+                .build();
+        String result = summarizer.summarizeWithSource(initialSummary,
+                Arrays.asList(document1, document2));
 
         // Assert
         assertEquals("Updated summary 2", result);

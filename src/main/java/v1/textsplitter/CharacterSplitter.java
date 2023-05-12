@@ -9,7 +9,7 @@ import java.util.*;
 
 @AllArgsConstructor
 @Builder
-public class CharacterSplitter implements TextSplitter{
+public class CharacterSplitter extends TextSplitter{
     int chunkSize;
     // TODO split window size, make sure split takes into account largest window
 
