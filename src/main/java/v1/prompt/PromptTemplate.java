@@ -14,13 +14,21 @@ import java.util.Map;
  * key-value pairs and returns the formatted prompt string.
  */
 @Builder
-@AllArgsConstructor
 @Getter
 public class PromptTemplate {
-    private static final String OPENING_BRACES = "{";
-    private static final String CLOSING_BRACES = "}";
     private String text;
+    private String openingString = "{";
+    private String closingString = "}";
 
+    public PromptTemplate(final String text) {
+        this.text = text;
+    }
+
+    public PromptTemplate(final String text, final String openingString, final String closingString) {
+        this.text = text;
+        this.openingString = openingString;
+        this.closingString = closingString;
+    }
     /**
      * Call the method with some key-value pairs.
      * Example: format("key1", "value1", "key2", "value2", "key3", "value3");
@@ -49,7 +57,7 @@ public class PromptTemplate {
         String result = text;
 
         for(String key : kevValues.keySet()) {
-            CharSequence charSequence = OPENING_BRACES + key + CLOSING_BRACES;
+            CharSequence charSequence = openingString + key + closingString;
             result = result.replace(charSequence, kevValues.get(key).toString());
         }
 
