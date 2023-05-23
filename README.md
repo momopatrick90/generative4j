@@ -7,7 +7,14 @@ Generative4j is java library (similar to langchain) that helps you:
 * Use, extend and create AI Agents and tools. [WIP]
 
 ### Installing
+* Add to you pom.cml
 ```xml
+<repository>
+    <id>jitpack.io</id>
+    <url>https://www.jitpack.io</url>
+</repository>
+
+
 <dependency>
       <groupId>com.github.momopatrick90</groupId>
       <artifactId>generative4j</artifactId>
