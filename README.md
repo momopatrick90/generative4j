@@ -7,7 +7,15 @@ Generative4j is java library (similar to langchain) that helps you:
 * Use, extend and create AI Agents and tools. [WIP]
 
 ### Installing
-* Todo
+```xml
+<dependency>
+      <groupId>com.github.momopatrick90</groupId>
+      <artifactId>generative4j</artifactId>
+      <version>1.0-SNAPSHOT</version>
+</dependency>
+```
+
+
 
 ### Sample creation of AIModel for OpenAI.
 ```java
