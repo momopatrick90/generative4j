@@ -1,13 +1,13 @@
 package v1.summarize;
 
+import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import v1.model.Document;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,76 +17,74 @@ class SummarizerTest {
     void summarize() {
         // Arrange
         final Summarizer summarizer = Mockito.mock(Summarizer.class);
-        Mockito.when(summarizer.summarize(Mockito.anyList(), Mockito.anyMap()))
+        Mockito.when(summarizer.summarizeDocuments(Mockito.anyList(), Mockito.anyMap(), Mockito.anyList()))
                 .thenReturn("summary");
+        Mockito.when(summarizer.summarize(Mockito.anyList(), Mockito.anyMap(), Mockito.anyList()))
+                .thenCallRealMethod();
         Mockito.when(summarizer.summarize(Mockito.anyList()))
                 .thenCallRealMethod();
+        List<String> input = Arrays.asList("test");
 
         // Act
-        List<String> input = Arrays.asList("test");
-        String result = summarizer.summarize(Arrays.asList("test"));
+        String result = summarizer.summarize(input);
 
         // Assert
         Assertions.assertEquals(result, "summary");
-        Mockito.verify(summarizer).summarize(Mockito.eq(input), Mockito.eq(new HashMap<>()));
+        Mockito.verify(summarizer).summarizeDocuments(
+                Mockito.argThat(new FirstDocEquals(Arrays.asList(Document.builder().text("test").build()))),
+                Mockito.eq(new HashMap<>()),
+                Mockito.eq(new ArrayList<>()));
     }
 
     @Test
-    void summarizeKVs() {
+    void summarizeDocumentsListOnly() {
         // Arrange
         final Summarizer summarizer = Mockito.mock(Summarizer.class);
-        Mockito.when(summarizer.summarize(Mockito.anyList(), Mockito.anyMap()))
+        Mockito.when(summarizer.summarizeDocuments(Mockito.anyList(), Mockito.anyMap(), Mockito.anyList()))
                 .thenReturn("summary");
-        Mockito.when(summarizer.summarize(Mockito.anyList(), Mockito.anyList()))
+        Mockito.when(summarizer.summarizeDocuments(Mockito.anyList()))
                 .thenCallRealMethod();
+        List<Document> input = Arrays.asList(Document.builder().text("test").build());
 
         // Act
-        List<String> input = Arrays.asList("test");
-        String result = summarizer.summarize(input, Arrays.asList("key", "value"));
+        String result = summarizer.summarizeDocuments(input);
 
         // Assert
         Assertions.assertEquals(result, "summary");
+        Mockito.verify(summarizer).summarizeDocuments(Mockito.eq(input),
+                Mockito.eq(new HashMap<>()),
+                Mockito.eq(new ArrayList<>()));
+    }
+
+    @Test
+    void summarizeAdditionParamsAndMeta() {
+        // Arrange
+        final Summarizer summarizer = Mockito.mock(Summarizer.class);
+        Mockito.when(summarizer.summarizeDocuments(Mockito.anyList(), Mockito.anyMap(), Mockito.anyList()))
+                .thenReturn("summary");
+        Mockito.when(summarizer.summarize(Mockito.anyList(), Mockito.anyMap(), Mockito.anyList()))
+                .thenCallRealMethod();
+
+        // Act
         final HashMap<String, String> map = new HashMap<>();
         map.put("key", "value");
-        Mockito.verify(summarizer).summarize(Mockito.eq(input), Mockito.eq(map));
-    }
-
-
-    @Test
-    void summarizeWithSource() {
-        // Arrange
-        final Summarizer summarizer = Mockito.mock(Summarizer.class);
-        Mockito.when(summarizer.summarizeWithSource(Mockito.anyList(), Mockito.anyMap()))
-                .thenReturn("summary");
-        Mockito.when(summarizer.summarizeWithSource(Mockito.anyList()))
-                .thenCallRealMethod();
-
-        // Act
-        List<Document> input = Arrays.asList(Document.builder().text("text").source("source").build());
-        String result = summarizer.summarizeWithSource(input);
+        String result = summarizer.summarize( Arrays.asList("test"), map, Arrays.asList("metaKey"));
 
         // Assert
         Assertions.assertEquals(result, "summary");
-        Mockito.verify(summarizer).summarizeWithSource(Mockito.eq(input), Mockito.eq(new HashMap<>()));
+        Mockito.verify(summarizer).summarizeDocuments(
+                Mockito.argThat(new FirstDocEquals(Arrays.asList(Document.builder().text("test").build()))),
+                Mockito.eq(map),
+                Mockito.eq(Arrays.asList("metaKey")));
     }
 
-    @Test
-    void summarizeWithSourceKVs() {
-        // Arrange
-        final Summarizer summarizer = Mockito.mock(Summarizer.class);
-        Mockito.when(summarizer.summarizeWithSource(Mockito.anyList(), Mockito.anyMap()))
-                .thenReturn("summary");
-        Mockito.when(summarizer.summarizeWithSource(Mockito.anyList(), Mockito.anyList()))
-                .thenCallRealMethod();
+    @AllArgsConstructor
+    public static class FirstDocEquals extends ArgumentMatcher<List<Document>> {
+        public  List<Document> document;
 
-        // Act
-        List<Document> input = Arrays.asList(Document.builder().text("text").source("source").build());
-        String result = summarizer.summarizeWithSource(input, Arrays.asList("key", "value"));
-
-        // Assert
-        Assertions.assertEquals(result, "summary");
-        final HashMap<String, String> map = new HashMap<>();
-        map.put("key", "value");
-        Mockito.verify(summarizer).summarizeWithSource(Mockito.eq(input), Mockito.eq(map));
+        @Override
+        public boolean matches(Object argument) {
+            return document.get(0).getText().equals((((List<Document>)argument).get(0).getText()));
+        }
     }
 }

@@ -3,28 +3,35 @@ package v1.summarize;
 import v1.model.Document;
 import v1.utils.ListUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class Summarizer {
-    public abstract String summarize(List<String> stringList, Map<String, String> additionalPromptKVs);
+    public static final String TEXT = "text";
+    public static final String SOURCE = "source";
+    public static final String CURRENT_SUMMARY = "currentSummary";
+    public static final String INITIAL_SUMMARY = "initialSummary";
 
-    public String summarize(final List<String> stringList, List<String> kvs) {
-        return summarize(stringList, ListUtils.keyValuesToMap(kvs.toArray(new String[0])));
+    public abstract String summarizeDocuments(final List<Document> documents,
+                                     final Map<String, String> additionalParameters,
+                                     final List<String> parametersFromDocumentMeta);
+
+    public String summarize(final List<String> stringList,
+                                     final Map<String, String> additionalParameters,
+                                     final List<String> parametersFromDocumentMeta) {
+        final List<Document> documents = stringList
+                .stream().map(string -> Document.builder().text(string).build())
+                .collect(Collectors.toList());
+        return this.summarizeDocuments(documents,
+                additionalParameters,
+                parametersFromDocumentMeta);
     }
 
     public String summarize(final List<String> stringList) {
-        return summarize(stringList, new HashMap<>());
+        return summarize(stringList, new HashMap<>(), new ArrayList<>());
     }
 
-    public abstract String summarizeWithSource(final List<Document> documents, Map<String, String> additionalPromptKVs);
-
-    public String summarizeWithSource(final List<Document> documents, List<String> kvs) {
-        return summarizeWithSource(documents, ListUtils.keyValuesToMap(kvs.toArray(new String[0])));
-    }
-
-    public String summarizeWithSource(final List<Document> documents) {
-        return summarizeWithSource(documents, new HashMap<>());
+    public String summarizeDocuments(final List<Document> documents) {
+        return summarizeDocuments(documents, new HashMap<>(), new ArrayList<>());
     }
 }

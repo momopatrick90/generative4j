@@ -3,10 +3,14 @@ package v1.model;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
+
+import java.util.Map;
 
 @Builder
 @Getter
+@Setter
 public class Document {
     String text;
-    String source;
+    Map<String, Object> meta;
 }

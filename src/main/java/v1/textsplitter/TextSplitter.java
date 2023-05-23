@@ -2,7 +2,10 @@ package v1.textsplitter;
 
 import v1.model.Document;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public abstract class TextSplitter {
@@ -14,7 +17,7 @@ public abstract class TextSplitter {
                 .stream()
                 .map(s -> Document.builder()
                         .text(s)
-                        .source(document.getSource())
+                        .meta(Optional.ofNullable(document.getMeta()).map(TextSplitter::shallowCopy).orElse(null))
                         .build())
                 .collect(Collectors.toList());
     }
@@ -23,5 +26,11 @@ public abstract class TextSplitter {
         return documents.stream()
                 .flatMap(document -> this.split(document, split).stream())
                 .collect(Collectors.toList());
+    }
+
+    private static Map<String, Object> shallowCopy(Map<String, Object> map) {
+        return map.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

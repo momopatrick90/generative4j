@@ -18,10 +18,6 @@ import java.util.Map;
 @Getter
 @Slf4j
 public class SequentialSummarizer extends Summarizer {
-    public static final String TEXT = "text";
-    public static final String SOURCE = "source";
-    public static final String CURRENT_SUMMARY = "currentSummary";
-    public static final String INITIAL_SUMMARY = "initialSummary";
     /**
      * The template model used to generate the summary, it has to parameters:
      * {currentSummary} representing the current summary.
@@ -30,32 +26,21 @@ public class SequentialSummarizer extends Summarizer {
     TemplateModel templateModel;
 
     @Override
-    public String summarize(final List<String> stringList, final Map<String, String> additionalPromptKVs) {
-        String currentSummary = additionalPromptKVs.getOrDefault(INITIAL_SUMMARY, "");
+    public String summarizeDocuments(final List<Document> documents,
+                                    final Map<String, String> additionalParameters,
+                                    final List<String> parametersFromDocumentMeta) {
+        String currentSummary = additionalParameters.getOrDefault(INITIAL_SUMMARY, "");
 
-        for (final String string : stringList) {
-            final Map<String, String> kvs = new HashMap<>(additionalPromptKVs);
-            kvs.put(TEXT, string);
-            kvs.put(CURRENT_SUMMARY, currentSummary);
+        for (final Document document : documents) {
+            final Map<String, String> parameters = new HashMap<>(additionalParameters);
+            parameters.put(TEXT, document.getText());
+            parameters.put(CURRENT_SUMMARY, currentSummary);
+            for(final String parameter : parametersFromDocumentMeta) {
+                parameters.put(parameter, (String) document.getMeta().get(parameter));
+            }
 
-            currentSummary = templateModel.completion(kvs);
+            currentSummary = templateModel.completion(parameters);
 
-        }
-
-        return currentSummary;
-    }
-
-    @Override
-    public String summarizeWithSource(final List<Document> stringList , final Map<String, String> additionalPromptKVs) {
-        String currentSummary = additionalPromptKVs.getOrDefault(INITIAL_SUMMARY, "");
-
-        for (final Document textAndSource : stringList) {
-            final Map<String, String> kvs = new HashMap<>(additionalPromptKVs);
-            kvs.put(TEXT, textAndSource.getText());
-            kvs.put(SOURCE, textAndSource.getSource());
-            kvs.put(CURRENT_SUMMARY, currentSummary);
-
-            currentSummary = templateModel.completion(kvs);
         }
 
         return currentSummary;

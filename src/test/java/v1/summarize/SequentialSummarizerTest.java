@@ -17,39 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SequentialSummarizerTest {
     @Test
-    void summarize() {
-        // Arrange
-        String initialSummary = "initial";
-        String string1 = "String 1";
-        String string2 = "String 2";
-        TemplateModel mockTemplateModel = Mockito.mock(TemplateModel.class);
-        HashMap<String,String> kvs1 = new HashMap<>();
-        kvs1.put("currentSummary", initialSummary);
-        kvs1.put("text", string1);
-        kvs1.put("initialSummary", initialSummary);
-        Mockito.when(mockTemplateModel.completion(Mockito.argThat(new MapEquals(kvs1)))).thenReturn("Updated summary 1");
-
-        HashMap<String,String> kvs2 = new HashMap<>();
-        kvs2.put("currentSummary", "Updated summary 1");
-        kvs2.put("text", "String 2");
-        kvs2.put("initialSummary", initialSummary);
-        Mockito.when(mockTemplateModel.completion(Mockito.argThat(new MapEquals(kvs2)))).thenReturn("Updated summary 2");
-
-        SequentialSummarizer summarizer = SequentialSummarizer.builder()
-                .templateModel(mockTemplateModel)
-                .build();
-
-        // Act
-        final HashMap<String, String> map = new HashMap<>();
-        map.put("initialSummary", initialSummary);
-        String result = summarizer.summarize(Arrays.asList(string1, string2), map);
-
-        // Assert
-        assertEquals("Updated summary 2", result);
-    }
-
-    @Test
-    void summarizeWithSource() {
+    void summarizeDocuments() {
         // Arrange
         String initialSummary = "initial";
         String string1 = "String 1";
@@ -77,16 +45,20 @@ class SequentialSummarizerTest {
         // Act
         Document document1 = Document.builder()
                 .text(string1)
-                .source("source1")
+                .meta(new HashMap<String, Object>() {{
+                    put(Summarizer.SOURCE, "source1");
+                }})
                 .build();
         Document document2 = Document.builder()
                 .text(string2)
-                .source("source2")
+                .meta(new HashMap<String, Object>() {{
+                    put(Summarizer.SOURCE, "source2");
+                }})
                 .build();
-        final HashMap<String, String> map = new HashMap<>();
-        map.put("initialSummary", initialSummary);
-        String result = summarizer.summarizeWithSource(Arrays.asList(document1, document2),
-                map);
+        final HashMap<String, String> parameters = new HashMap<>();
+        parameters.put("initialSummary", initialSummary);
+        String result = summarizer.summarizeDocuments(Arrays.asList(document1, document2),
+                parameters, Arrays.asList(Summarizer.SOURCE));
 
         // Assert
         assertEquals("Updated summary 2", result);

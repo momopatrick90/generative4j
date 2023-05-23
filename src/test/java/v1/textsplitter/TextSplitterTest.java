@@ -4,8 +4,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import v1.model.Document;
+import v1.summarize.Summarizer;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +25,9 @@ class TextSplitterTest {
                 .thenCallRealMethod();
         Document document = Document.builder()
                 .text("text")
-                .source("source")
+                .meta(new HashMap<String, Object>() {{
+                    put(Summarizer.SOURCE, "source1");
+                }})
                 .build();
 
         // Act
@@ -31,9 +35,13 @@ class TextSplitterTest {
 
         // Assert
         Assertions.assertEquals(documents.get(0).getText(), "part1");
-        Assertions.assertEquals(documents.get(0).getSource(), "source");
+        Assertions.assertEquals(documents.get(0).getMeta(), new HashMap<String, Object>() {{
+            put(Summarizer.SOURCE, "source1");
+        }});
         Assertions.assertEquals(documents.get(1).getText(), "part2");
-        Assertions.assertEquals(documents.get(1).getSource(), "source");
+        Assertions.assertEquals(documents.get(1).getMeta(), new HashMap<String, Object>() {{
+            put(Summarizer.SOURCE, "source1");
+        }});
     }
 
     @Test
@@ -49,7 +57,9 @@ class TextSplitterTest {
                 .thenCallRealMethod();
         Document document = Document.builder()
                 .text("text")
-                .source("source")
+                .meta(new HashMap<String, Object>() {{
+                    put(Summarizer.SOURCE, "source1");
+                }})
                 .build();
 
         // Act
@@ -57,8 +67,12 @@ class TextSplitterTest {
 
         // Assert
         Assertions.assertEquals(documents.get(0).getText(), "part1");
-        Assertions.assertEquals(documents.get(0).getSource(), "source");
+        Assertions.assertEquals(documents.get(0).getMeta(), new HashMap<String, Object>() {{
+            put(Summarizer.SOURCE, "source1");
+        }});
         Assertions.assertEquals(documents.get(1).getText(), "part2");
-        Assertions.assertEquals(documents.get(1).getSource(), "source");
+        Assertions.assertEquals(documents.get(1).getMeta(), new HashMap<String, Object>() {{
+            put(Summarizer.SOURCE, "source1");
+        }});
     }
 }
