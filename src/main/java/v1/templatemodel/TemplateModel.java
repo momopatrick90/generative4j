@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import v1.aimodel.AIModel;
 import v1.model.PromptParameter;
 import v1.prompt.PromptTemplate;
@@ -16,6 +17,7 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @Getter
+@Slf4j
 public class TemplateModel {
     private static Gson GSON = new Gson();
     final AIModel aiModel;

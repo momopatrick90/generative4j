@@ -3,6 +3,7 @@ package v1.prompt;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import v1.model.Generative4jException;
 
 import java.util.HashMap;
@@ -15,13 +16,16 @@ import java.util.Map;
  */
 @Builder
 @Getter
+@Setter
 public class PromptTemplate {
     private String text;
+    @Builder.Default
     private String openingString = "{";
+    @Builder.Default
     private String closingString = "}";
 
     public PromptTemplate(final String text) {
-        this.text = text;
+        this(text, "{", "}");
     }
 
     public PromptTemplate(final String text, final String openingString, final String closingString) {
@@ -57,8 +61,8 @@ public class PromptTemplate {
         String result = text;
 
         for(String key : kevValues.keySet()) {
-            CharSequence charSequence = openingString + key + closingString;
-            result = result.replace(charSequence, kevValues.get(key).toString());
+            CharSequence effectiveKey = openingString + key + closingString;
+            result = result.replace(effectiveKey, kevValues.get(key).toString());
         }
 
         return result;
